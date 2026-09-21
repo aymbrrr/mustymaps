@@ -1,2 +1,29 @@
 node_modules/
 .DS_Store
+
+# Environment variables — never commit real keys
+.env
+.env.local
+.env.*.local
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# Local working notes — not for the team repo
+REUSE.md
+context.md
+TODO.md
+NOTES.md
+scratch/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
