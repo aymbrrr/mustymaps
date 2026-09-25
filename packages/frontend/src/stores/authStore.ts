@@ -14,6 +14,7 @@ import { supabase } from '../lib/supabase';
 interface AuthState {
   session: Session | null;
   user: User | null;
+  isGuest: boolean;
   isLoading: boolean;
   error: string | null;
 
@@ -21,6 +22,8 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  continueAsGuest: () => void;
+  exitGuest: () => void;
   setSession: (session: Session | null) => void;
   clearError: () => void;
 }
@@ -28,11 +31,22 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   user: null,
+  isGuest: false,
   isLoading: false,
   error: null,
 
+  // Guests hold no Supabase session, so reads run as the `anon` role and RLS
+  // is what actually enforces least-privilege access — not this flag.
+  continueAsGuest: () => set({ isGuest: true, error: null }),
+
+  exitGuest: () => set({ isGuest: false }),
+
   setSession: (session) =>
-    set({ session, user: session?.user ?? null }),
+    set((state) => ({
+      session,
+      user: session?.user ?? null,
+      isGuest: session ? false : state.isGuest,
+    })),
 
   clearError: () => set({ error: null }),
 
@@ -61,6 +75,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     set({ isLoading: true, error: null });
     await supabase.auth.signOut();
-    set({ session: null, user: null, isLoading: false });
+    set({ session: null, user: null, isGuest: false, isLoading: false });
   },
 }));

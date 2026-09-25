@@ -20,20 +20,14 @@ mustymaps/
 - **Expo Go** app on your phone (App Store / Play Store)
 - Phone and laptop on the same Wi-Fi
 
+The project is on **Expo SDK 57**. iOS Expo Go only ever supports the newest SDK,
+so when Expo ships a new one we have to upgrade in step — see Troubleshooting.
+
 Only if you're changing the database:
 
 - Supabase CLI — `brew install supabase/tap/supabase`
 
 ---
-
-## One-Time — Project Owner Only
-
-1. Create a Supabase **organization** (free tier), then a project inside it
-2. Invite every teammate to the org as a Member
-3. Project Settings → API → copy the **Project URL** and **anon key**
-4. Share both in the team Discord — never commit them
-5. Auth → Providers → Email → **disable "Confirm email"** (dev only)
-6. Push the schema from the repo root:
 
    ```bash
    supabase link --project-ref <project-ref>
@@ -161,6 +155,7 @@ npm run format      # prettier
 
 | Problem | Fix |
 |---|---|
+| "Project is incompatible with this version of Expo Go" | Expo Go for iOS only supports the newest SDK. Upgrade the project: `npx expo install expo@^<latest> && npx expo install --fix`, then `npx expo-doctor`. You cannot install an older Expo Go on iOS. |
 | Changed `.env` and nothing happened | Restart with `npx expo start --clear` |
 | Phone can't reach the dev server | Same Wi-Fi, or use `npm run start:tunnel` |
 | Hermes / URL protocol error on launch | `expo-sqlite/localStorage/install` must stay the first import in `App.tsx` |

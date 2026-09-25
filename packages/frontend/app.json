@@ -6,12 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F7FAF8"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "edu.calpoly.mustymaps",
@@ -25,13 +19,23 @@
         "backgroundColor": "#F7FAF8"
       },
       "package": "edu.calpoly.mustymaps",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-sqlite", "expo-location"]
+    "plugins": [
+      "expo-sqlite",
+      "expo-location",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#F7FAF8"
+        }
+      ]
+    ]
   }
 }

@@ -88,7 +88,7 @@ function AppNavigator() {
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 export function RootNavigator() {
-  const { session, setSession } = useAuthStore();
+  const { session, isGuest, setSession } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -113,7 +113,9 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>{session ? <AppNavigator /> : <AuthNavigator />}</NavigationContainer>
+    <NavigationContainer>
+      {session || isGuest ? <AppNavigator /> : <AuthNavigator />}
+    </NavigationContainer>
   );
 }
 
