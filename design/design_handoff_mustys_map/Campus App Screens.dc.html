@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"><style>body{margin:0;background:#EEEDE8;font-family:'Geist',system-ui,sans-serif}a{color:#154734}a:hover{color:#0d2f22}.dv-turn{padding:44px 48px 40px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#17231D;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 15px/1.2 'Geist',sans-serif;color:#17231D}.dv-opts{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:22px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#17231D;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:500 13px/1.3 'Geist',sans-serif;color:#54585A}.dv-opt:target .dv-oid{background:#154734;color:#fff}.dv-next{margin:30px 0 0;font:13px/1.5 'Geist',sans-serif;color:rgba(0,0,0,.5)}</style></helmet>
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">musty's map — campus eat &amp; study ratings</span></div>
+  <p style="margin:0 0 30px;max-width:760px;font-size:14px;line-height:1.55;color:#54585A;text-wrap:pretty">Every phone is live — tap pins, chips, stars, toggles. Assumed: Cal Poly SLO, @calpoly.edu login with code, 5-star + busyness ("dead → packed") as the core rating, current time 2:14 pm. Real campus map via OpenStreetMap; spot coordinates are approximate. Tweaks: pin style and map tiles. Drop your Musty artwork onto any circle slot (login, map header, share card) and it fills everywhere.</p>
+  <div class="dv-opts">
+    <div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>login</div><div style="margin:11px"><dc-import name="CampusApp" start="login" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1l"><div class="dv-olabel"><a class="dv-oid" href="#1l">1l</a>sign in</div><div style="margin:11px"><dc-import name="CampusApp" start="signin" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1m"><div class="dv-olabel"><a class="dv-oid" href="#1m">1m</a>sign up</div><div style="margin:11px"><dc-import name="CampusApp" start="signup" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>feed · trending + all spots</div><div style="margin:11px"><dc-import name="CampusApp" start="feed" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1k"><div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>leaderboard</div><div style="margin:11px"><dc-import name="CampusApp" start="leaderboard" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>map · browse</div><div style="margin:11px"><dc-import name="CampusApp" start="map" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>map · spot expanded</div><div style="margin:11px"><dc-import name="CampusApp" start="map" loc-id="klib" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>location · ratings, reviews, busyness</div><div style="margin:11px"><dc-import name="CampusApp" start="location" loc-id="klib" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>quick rate popup</div><div style="margin:11px"><dc-import name="CampusApp" start="location" loc-id="1901" quick="{{ yes }}" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>rate a location</div><div style="margin:11px"><dc-import name="CampusApp" start="rate" loc-id="1901" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>your profile · edit / share</div><div style="margin:11px"><dc-import name="CampusApp" start="profile" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>public profile</div><div style="margin:11px"><dc-import name="CampusApp" start="public" user-id="jordan" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+    <div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>settings</div><div style="margin:11px"><dc-import name="CampusApp" start="settings" pin-style="{{ pinStyle }}" tiles="{{ tiles }}" hint-size="390px,844px"></dc-import></div></div>
+  </div>
+  <p class="dv-next">Try next: "make <a class="dv-oid" href="#1d">1d</a> busyness a live heat strip" · "dark mode for <a class="dv-oid" href="#1b">1b</a>" · "add a friends-activity feed"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;pinStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;name&quot;,&quot;score&quot;],&quot;default&quot;:&quot;name&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tiles&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;voyager&quot;,&quot;light&quot;],&quot;default&quot;:&quot;voyager&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals(){ return { pinStyle:this.props.pinStyle ?? 'name', tiles:this.props.tiles ?? 'voyager', yes:true }; }
+}
+</script>
+</body>
+</html>

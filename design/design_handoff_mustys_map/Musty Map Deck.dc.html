@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"><style>body{margin:0;background:#111}a{color:#154734}a:hover{color:#0d2f22}</style></helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<section data-label="01 Title" data-screen-label="01 Title" data-speaker-notes="Musty's Map: a Gen Z campus app for rating where Cal Poly students eat and study." style="background:#154734;font-family:'Geist',sans-serif;color:#FAF9F6;display:flex;align-items:center;gap:80px;padding:0 130px;box-sizing:border-box">
+  <div style="flex:1;display:flex;flex-direction:column;gap:30px">
+    <div style="font-size:26px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#D5E4F4">product design · v1</div>
+    <div style="font-size:160px;font-weight:600;letter-spacing:-.06em;line-height:.88">musty's map<span style="color:#D5E4F4">.</span></div>
+    <div style="font-size:38px;line-height:1.3;color:#FAF9F6;max-width:760px">rate where you eat, study &amp; lock in <span style="color:#D5E4F4;font-weight:600">@ cal poly slo</span>.</div>
+  </div>
+  <div style="flex:none;padding:11px"><dc-import name="CampusApp" start="login"  hint-size="390px,844px"></dc-import></div>
+</section>
+<section data-label="02 Onboarding" data-screen-label="02 Onboarding" data-speaker-notes="Intro, sign up, sign in. Sign up is gated to calpoly.edu emails and verified by code." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:56px;padding:0 90px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">onboarding</div>
+    <div style="font-size:72px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">get in fast<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:26px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">One intro, then sign up with a verified @calpoly.edu email and a 6-digit code, or sign in if you already have an account.</div>
+  </div>
+  <div style="display:flex;gap:24px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="login"  hint-size="390px,844px"></dc-import></div><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="signup"  hint-size="390px,844px"></dc-import></div><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="signin"  hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="03 Feed" data-screen-label="03 Feed" data-speaker-notes="The feed is the home tab after login: trending carousel plus the full list." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">feed</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">what’s good rn<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Trending spots ranked by live check-ins, then every spot with its busyness, overall rating and top comment.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="feed"  hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="04 Map" data-screen-label="04 Map" data-speaker-notes="Browse state shows top-rated nearby; the expanded bar has quick rate, rate it, and details." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">map</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">tap a pin, get the vibe<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Restaurants and study spots on a real campus map. Tapping a pin expands a bar with rating, live busyness and quick actions.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="map"  hint-size="390px,844px"></dc-import></div><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="map" loc-id="klib" hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="05 Location" data-screen-label="05 Location" data-speaker-notes="Location detail and the quick rate popup: stars plus a busyness check-in in about 5 seconds." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">location</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">the full picture<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Ratings, a breakdown by category, reviews, and how busy it is at any hour on any day.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="location" loc-id="klib" hint-size="390px,844px"></dc-import></div><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="location" loc-id="1901" quick="{{ yes }}" hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="06 Rate" data-screen-label="06 Rate" data-speaker-notes="The full review flow. Categories change by spot type, food or study." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">rate a spot</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">say it in 30 sec<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Overall stars, category details, a busyness check-in, tags, notes and a photo.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="rate" loc-id="1901" hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="07 Leaderboard" data-screen-label="07 Leaderboard" data-speaker-notes="Leaderboard drives repeat rating; the pinned you-row shows the gap to the next rank." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">leaderboard</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">top raters<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Rank by ratings, reviews, spots or streak, all-time or this week. You can always see your rank and how far you are from the next person.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="leaderboard"  hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="08 Profiles" data-screen-label="08 Profiles" data-speaker-notes="Own profile with edit and share sheet; public profile with rating distribution and go-to spots." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">profiles</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">you &amp; everyone else<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Your profile lists every rating with edit and share. Public profiles show how someone rates and where they go.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="profile"  hint-size="390px,844px"></dc-import></div><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="public" user-id="jordan" hint-size="390px,844px"></dc-import></div></div>
+</section>
+<section data-label="09 Settings" data-screen-label="09 Settings" data-speaker-notes="Settings cover App Store requirements: notification controls, tracking opt-in, data download, and in-app account deletion." style="background:#FAF9F6;font-family:'Geist',sans-serif;color:#17231D;display:flex;align-items:center;gap:72px;padding:0 110px;box-sizing:border-box">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A">settings</div>
+    <div style="font-size:84px;font-weight:600;letter-spacing:-.05em;line-height:.95;color:#154734;text-wrap:balance">all the toggles<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:30px;line-height:1.4;color:#54585A;max-width:620px;text-wrap:pretty">Notifications with mute all, location, privacy and tracking, accessibility, legal, and account deletion. Covers everything Apple requires.</div>
+  </div>
+  <div style="display:flex;gap:36px;align-items:center;flex:none"><div style="flex:none;padding:11px"><dc-import name="CampusApp" start="settings"  hint-size="390px,844px"></dc-import></div></div>
+</section>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){ return { yes:true }; }
+}
+</script>
+</body>
+</html>
