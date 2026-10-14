@@ -6,6 +6,7 @@ import { useToast } from '../../components/ToastHost';
 import { PrimaryButton } from '../../components/ui/Buttons';
 import { Checkbox, Field } from '../../components/ui/Inputs';
 import { Text } from '../../components/ui/Text';
+import { validate } from '../../lib/validation';
 import { AuthStackParamList } from '../../navigation/types';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors, fonts, radius, type } from '../../theme/tokens';
@@ -24,6 +25,7 @@ export function SignUpScreen({ navigation }: Props) {
   const verifyCode = useSessionStore((state) => state.verifyCode);
   const resendCode = useSessionStore((state) => state.resendCode);
   const editEmail = useSessionStore((state) => state.editEmail);
+  const isBusy = useSessionStore((state) => state.isBusy);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +46,7 @@ export function SignUpScreen({ navigation }: Props) {
       setEmailError(true);
       return;
     }
-    const failure = await signUp(email, password);
+    const failure = await signUp(validate.email(email), password);
     if (failure) toast(failure);
   };
 
@@ -58,6 +60,7 @@ export function SignUpScreen({ navigation }: Props) {
       style={styles.screen}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
       showsVerticalScrollIndicator={false}
     >
       <BackChevron onPress={() => (awaitingCode ? editEmail() : navigation.goBack())} />
@@ -86,7 +89,7 @@ export function SignUpScreen({ navigation }: Props) {
           <PrimaryButton
             label="let's go →"
             onPress={onVerify}
-            disabled={code.length !== CODE_LENGTH}
+            disabled={code.length !== CODE_LENGTH || isBusy}
             style={styles.verifyButton}
           />
 
@@ -192,7 +195,7 @@ export function SignUpScreen({ navigation }: Props) {
           <PrimaryButton
             label="create account →"
             onPress={onCreate}
-            disabled={!canCreate}
+            disabled={!canCreate || isBusy}
             style={styles.createButton}
           />
 

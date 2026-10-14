@@ -6,6 +6,7 @@ import { useToast } from '../../components/ToastHost';
 import { PrimaryButton } from '../../components/ui/Buttons';
 import { Field } from '../../components/ui/Inputs';
 import { Text } from '../../components/ui/Text';
+import { validate } from '../../lib/validation';
 import { AuthStackParamList } from '../../navigation/types';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors, fonts, type } from '../../theme/tokens';
@@ -17,6 +18,7 @@ export function SignInScreen({ navigation }: Props) {
   const toast = useToast();
   const signIn = useSessionStore((state) => state.signIn);
   const requestPasswordReset = useSessionStore((state) => state.requestPasswordReset);
+  const isBusy = useSessionStore((state) => state.isBusy);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +32,7 @@ export function SignInScreen({ navigation }: Props) {
       setEmailError(true);
       return;
     }
-    const failure = await signIn(email, password);
+    const failure = await signIn(validate.email(email), password);
     toast(failure ?? 'welcome back.');
   };
 
@@ -39,8 +41,9 @@ export function SignInScreen({ navigation }: Props) {
       toast('enter your email first');
       return;
     }
-    await requestPasswordReset(email);
-    toast(`reset link sent to ${email.trim()}`);
+    const normalized = validate.email(email);
+    await requestPasswordReset(normalized);
+    toast(`reset link sent to ${normalized}`);
   };
 
   return (
@@ -48,6 +51,7 @@ export function SignInScreen({ navigation }: Props) {
       style={styles.screen}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
       showsVerticalScrollIndicator={false}
     >
       <BackChevron onPress={() => navigation.goBack()} />
@@ -101,7 +105,7 @@ export function SignInScreen({ navigation }: Props) {
       <PrimaryButton
         label="sign in →"
         onPress={onSignIn}
-        disabled={!emailOk || password.length === 0}
+        disabled={!emailOk || password.length === 0 || isBusy}
         style={styles.submit}
       />
 
