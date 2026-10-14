@@ -52,8 +52,12 @@ export interface LeaderboardRepository {
 export interface AuthGateway {
   /** Rejects with a message safe to show the user. */
   signIn(email: string, password: string): Promise<void>;
-  /** Starts verification; resolves once the 6-digit code has been sent. */
-  signUp(email: string, password: string): Promise<void>;
+  /**
+   * Creates the account. Returns whether a verification code was sent — a
+   * project with email confirmation turned off signs the user straight in, and
+   * the code screen must be skipped rather than stranding them on it.
+   */
+  signUp(email: string, password: string): Promise<{ needsVerification: boolean }>;
   verifyCode(email: string, code: string): Promise<void>;
   resendCode(email: string): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;

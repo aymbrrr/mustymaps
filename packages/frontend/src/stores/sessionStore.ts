@@ -96,9 +96,16 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   signUp: async (email, password) => {
     set({ isBusy: true });
-    const failure = await attempt(() => backend().auth.signUp(email, password));
-    set({ isBusy: false, ...(failure ? {} : { status: 'awaitingCode', pendingEmail: email }) });
-    return failure;
+    try {
+      const { needsVerification } = await backend().auth.signUp(email, password);
+      if (needsVerification) set({ status: 'awaitingCode', pendingEmail: email });
+      else await hydrateSignedIn(set);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'something went wrong.';
+    } finally {
+      set({ isBusy: false });
+    }
   },
 
   verifyCode: async (code) => {

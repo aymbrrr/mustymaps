@@ -263,9 +263,10 @@ class InMemoryAuthGateway implements AuthGateway {
     if (!password) throw new Error('enter your password.');
   }
 
-  async signUp(email: string, password: string): Promise<void> {
+  async signUp(email: string, password: string): Promise<{ needsVerification: boolean }> {
     requireCalPolyEmail(email);
     if (password.length < 8) throw new Error('password needs 8+ characters');
+    return { needsVerification: true };
   }
 
   async verifyCode(_email: string, code: string): Promise<void> {

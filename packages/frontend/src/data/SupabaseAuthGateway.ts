@@ -30,8 +30,14 @@ function friendly(error: AuthError): Error {
   if (message.includes('token has expired') || message.includes('invalid token')) {
     return new Error('that code expired. tap resend code.');
   }
-  if (message.includes('for security purposes')) {
+  if (message.includes('for security purposes') || message.includes('rate limit')) {
     return new Error('slow down a sec, then try again.');
+  }
+  // Supabase's built-in email service only delivers to project team members and
+  // allows 2 messages an hour. Both failures are a mail setup problem, not a
+  // user mistake, so say so rather than blaming the address.
+  if (message.includes('not authorized') || message.includes('error sending')) {
+    return new Error('we can’t send email yet — set up custom smtp in supabase.');
   }
   return new Error(error.message);
 }
@@ -42,9 +48,11 @@ export class SupabaseAuthGateway implements AuthGateway {
     if (error) throw friendly(error);
   }
 
-  async signUp(email: string, password: string): Promise<void> {
-    const { error } = await supabase.auth.signUp({ email, password });
+  async signUp(email: string, password: string): Promise<{ needsVerification: boolean }> {
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw friendly(error);
+    // A session here means the project auto-confirms, so there is no code to enter.
+    return { needsVerification: data.session === null };
   }
 
   async verifyCode(email: string, code: string): Promise<void> {
