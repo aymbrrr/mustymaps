@@ -180,9 +180,10 @@ export function SettingsScreen({ navigation }: Props) {
         <DangerButton
           label="delete forever"
           style={styles.dialogPrimary}
-          onPress={() => {
+          onPress={async () => {
             setConfirmDelete(false);
-            void deleteAccount();
+            const failure = await deleteAccount();
+            if (failure) toast(failure);
           }}
         />
         <SecondaryButton label="never mind" height={50} onPress={() => setConfirmDelete(false)} />

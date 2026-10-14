@@ -6,6 +6,9 @@ import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+import { colors } from '../theme/tokens';
 
 import { IntroScreen } from '../screens/auth/IntroScreen';
 import { SignInScreen } from '../screens/auth/SignInScreen';
@@ -84,6 +87,24 @@ function AppNavigator() {
 
 export function RootNavigator() {
   const signedIn = useSessionStore((state) => state.status === 'signedIn');
+  const isReady = useSessionStore((state) => state.isReady);
+  const initialize = useSessionStore((state) => state.initialize);
+
+  useEffect(() => initialize(), [initialize]);
+
+  // Hold the current screen until the stored session has been read, otherwise
+  // a returning user sees the intro flash before being dropped into the feed.
+  if (!isReady) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={colors.polyGreen} />
+      </View>
+    );
+  }
 
   return <NavigationContainer>{signedIn ? <AppNavigator /> : <AuthNavigator />}</NavigationContainer>;
 }
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, backgroundColor: colors.offWhite, alignItems: 'center', justifyContent: 'center' },
+});

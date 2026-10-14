@@ -1,9 +1,9 @@
 /**
  * App entry point.
  *
- * configureBackend is the one place the app is bound to a data source. Today it
- * gets the in-memory scaffold; swapping in a Supabase or REST adapter that
- * implements `Backend` (src/domain/ports.ts) is a one-line change here.
+ * configureBackend is the one place the app is bound to a data source. See
+ * src/data/createBackend.ts for which slots are live and which are still the
+ * in-memory scaffold.
  */
 import { registerRootComponent } from 'expo';
 import {
@@ -20,12 +20,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ToastHost } from './src/components/ToastHost';
 import { configureBackend } from './src/data/backend';
-import { createInMemoryBackend } from './src/data/InMemoryBackend';
+import { createBackend } from './src/data/createBackend';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 void SplashScreen.preventAutoHideAsync();
 
-configureBackend(createInMemoryBackend());
+configureBackend(createBackend());
 
 function App() {
   const [fontsLoaded] = useFonts({
