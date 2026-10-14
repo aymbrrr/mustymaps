@@ -16,11 +16,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F7FAF8"
+        "backgroundColor": "#FAF9F6"
       },
       "package": "edu.calpoly.mustymaps",
       "predictiveBackGestureEnabled": false,
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,9 +36,10 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#F7FAF8"
+          "backgroundColor": "#FAF9F6"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

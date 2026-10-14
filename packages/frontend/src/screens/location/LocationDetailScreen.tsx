@@ -1,164 +1,289 @@
-/**
- * Location detail — recent reports for one location.
- * Shows raw reports rather than the aggregate so users can judge freshness
- * and spot outliers themselves.
- */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { HourlyChart } from '../../components/BusynessChart';
+import { ChevronLeftIcon, ShareIcon } from '../../components/Icons';
+import { QuickRateSheet } from '../../components/QuickRateSheet';
+import { useToast } from '../../components/ToastHost';
+import { CircleButton, PressableCard, PrimaryButton, SecondaryButton } from '../../components/ui/Buttons';
+import { FadeScrim } from '../../components/ui/FadeScrim';
+import { Card, rowDivider, SectionLabel } from '../../components/ui/Layout';
+import { Avatar, InfoChip, LivePill, ScorePill, Tag, TypeChip } from '../../components/ui/Pills';
+import { StarRow } from '../../components/ui/Stars';
+import { StripedPhoto } from '../../components/ui/StripedPhoto';
+import { Text } from '../../components/ui/Text';
+import { backend } from '../../data/backend';
+import { busyLevelName, CHART_FIRST_HOUR, hourLabel } from '../../domain/busyness';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+  busynessDetailSub,
+  curveForDay,
+  DAY_LABELS,
+  initialsOf,
+  SUB_SCORE_LABELS,
+} from '../../domain/rating';
+import { useAsync } from '../../hooks/useAsync';
+import { useNow } from '../../hooks/useNow';
+import { AppStackParamList } from '../../navigation/types';
+import { useSessionStore } from '../../stores/sessionStore';
+import { useSpotStore } from '../../stores/spotStore';
+import { colors, fonts, radius, spacing, type } from '../../theme/tokens';
 
-import { useLocationStore, Report } from '../../stores/locationStore';
-import { colors, spacing, typography } from '../../constants/theme';
-import {
-  busynessLevel,
-  timeAgo,
-  waitLabel,
-  OPEN_SEATS_LABELS,
-  STATUS_WINDOW_MINUTES,
-} from '../../lib/crowdUtils';
-import { AppRootParamList } from '../../navigation/types';
+type Props = NativeStackScreenProps<AppStackParamList, 'LocationDetail'>;
 
-export function LocationDetailScreen() {
-  const route = useRoute<RouteProp<AppRootParamList, 'LocationDetail'>>();
-  const navigation = useNavigation<NativeStackNavigationProp<AppRootParamList>>();
-  const { locationId, locationName } = route.params;
+export function LocationDetailScreen({ navigation, route }: Props) {
+  const { spotId } = route.params;
+  const toast = useToast();
+  const { nowIndex } = useNow();
+  const reduceMotion = useSessionStore((state) => state.settings.reduceMotion);
+  const spots = useSpotStore((state) => state.spots);
+  const remember = useSpotStore((state) => state.remember);
 
-  const getRecentReports = useLocationStore((s) => s.getRecentReports);
-  const [reports, setReports] = useState<Report[] | null>(null);
-  // Captured when the list loads so rendering stays pure.
-  const [staleBefore, setStaleBefore] = useState(0);
+  const spot = useMemo(() => spots.find((candidate) => candidate.id === spotId) ?? null, [spots, spotId]);
+  const reviews = useAsync(() => backend().reviews.listForSpot(spotId), [spotId]);
+
+  const [dayIndex, setDayIndex] = useState(0);
+  const [hourIndex, setHourIndex] = useState(nowIndex);
+  const [quickRateOpen, setQuickRateOpen] = useState(false);
 
   useEffect(() => {
-    getRecentReports(locationId).then((rows) => {
-      setStaleBefore(Date.now() - STATUS_WINDOW_MINUTES * 60_000);
-      setReports(rows);
-    });
-  }, [locationId, getRecentReports]);
+    remember(spotId);
+  }, [remember, spotId]);
+
+  if (!spot) return <View style={styles.screen} />;
+
+  const curve = curveForDay(spot.hourlyBusy, dayIndex);
+  const occupancyAtHour = curve[hourIndex];
+  const isNow = dayIndex === 0 && hourIndex === nowIndex;
+  const busyTitle = isNow
+    ? `${busyLevelName(occupancyAtHour)} right now`
+    : `usually ${busyLevelName(occupancyAtHour)} ${DAY_LABELS[dayIndex]} at ${hourLabel(CHART_FIRST_HOUR + hourIndex)}`;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} accessibilityRole="button">
-          <Text style={styles.back}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{locationName}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <StripedPhoto stripe={12} label={`[ photo · ${spot.name} ]`} labelSize={12} plate style={styles.hero}>
+          <CircleButton
+            size={44}
+            accessibilityLabel="back"
+            background={colors.offWhite}
+            shadow="soft"
+            style={styles.heroBack}
+            onPress={() => navigation.goBack()}
+          >
+            <ChevronLeftIcon size={20} />
+          </CircleButton>
+          <CircleButton
+            size={44}
+            accessibilityLabel="share spot"
+            background={colors.offWhite}
+            shadow="soft"
+            style={styles.heroShare}
+            onPress={() => toast(`link to ${spot.name} copied`)}
+          >
+            <ShareIcon />
+          </CircleButton>
+        </StripedPhoto>
 
-      {reports == null ? (
-        <ActivityIndicator style={styles.loading} color={colors.primary} />
-      ) : (
-        <FlatList
-          data={reports}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={
-            <Text style={styles.listHeader}>
-              Reports older than {STATUS_WINDOW_MINUTES} minutes no longer affect the map pin.
-            </Text>
-          }
-          ListEmptyComponent={
-            <Text style={styles.empty}>No reports yet. Be the first to add one.</Text>
-          }
-          renderItem={({ item }) => <ReportRow report={item} staleBefore={staleBefore} />}
-        />
-      )}
+        <View style={styles.sheet}>
+          <View style={styles.headBlock}>
+            <View style={styles.chipRow}>
+              <TypeChip type={spot.type} />
+              <InfoChip label={spot.hoursLabel} />
+              <InfoChip label={`${spot.walkTime} walk`} />
+            </View>
+            <Text style={type.locationName}>{spot.name}</Text>
+            <Text style={styles.area}>{spot.area}</Text>
+
+            <View style={styles.ratingRow}>
+              <Text style={type.bigRating}>{spot.rating}</Text>
+              <View style={styles.ratingMeta}>
+                <StarRow value={Math.round(spot.rating)} size={11} />
+                <Text style={styles.ratingCount}>{spot.ratingCount} ratings</Text>
+              </View>
+              <LivePill occupancy={spot.hourlyBusy[nowIndex]} large />
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <SectionLabel label="how busy" />
+            <View style={styles.dayRow}>
+              {DAY_LABELS.map((day, index) => {
+                const selected = index === dayIndex;
+                return (
+                  <Pressable
+                    key={day}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    onPress={() => setDayIndex(index)}
+                    style={[
+                      styles.dayChip,
+                      {
+                        backgroundColor: selected ? colors.polyGreen : colors.card,
+                        borderColor: selected ? colors.polyGreen : colors.inputBorder,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.dayLabel, { color: selected ? colors.offWhite : colors.ink }]}>
+                      {index === 0 ? 'today' : day}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Card style={styles.busyCard}>
+              <View style={styles.busyHeading}>
+                <Text style={styles.busyTitle}>{busyTitle}</Text>
+                <Text style={styles.busySub}>{busynessDetailSub(spot.type, occupancyAtHour, isNow)}</Text>
+              </View>
+              <HourlyChart
+                curve={curve}
+                selectedHour={hourIndex}
+                nowIndex={nowIndex}
+                isToday={dayIndex === 0}
+                onSelectHour={setHourIndex}
+                animate={!reduceMotion}
+              />
+            </Card>
+          </View>
+
+          <View style={styles.section}>
+            <SectionLabel label="the breakdown" />
+            <Card style={styles.breakdownCard}>
+              {SUB_SCORE_LABELS[spot.type].map((label, index) => (
+                <View key={label} style={[styles.breakdownRow, rowDivider(index)]}>
+                  <Text style={styles.breakdownLabel}>{label}</Text>
+                  <View style={styles.breakdownTrack}>
+                    <View style={[styles.breakdownFill, { width: `${(spot.subScores[index] / 5) * 100}%` }]} />
+                  </View>
+                  <Text style={styles.breakdownValue}>{spot.subScores[index].toFixed(1)}</Text>
+                </View>
+              ))}
+            </Card>
+            <View style={styles.tagRow}>
+              {spot.tags.map((tag) => (
+                <Tag key={tag} label={tag} />
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <SectionLabel label="reviews" caption="newest first" />
+            {(reviews ?? []).map((review) => (
+              <Card key={review.id} style={styles.reviewCard}>
+                <View style={styles.reviewHead}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`open @${review.authorHandle}`}
+                    onPress={() => navigation.navigate('PublicProfile', { userId: review.authorId })}
+                  >
+                    <Avatar initials={initialsOf(review.authorName)} size={38} fontSize={15} />
+                  </Pressable>
+                  <PressableCard
+                    scale={1}
+                    onPress={() => navigation.navigate('PublicProfile', { userId: review.authorId })}
+                    style={styles.reviewAuthor}
+                  >
+                    <Text style={styles.reviewHandle}>@{review.authorHandle}</Text>
+                    <Text style={styles.reviewWhen}>{review.createdAtLabel}</Text>
+                  </PressableCard>
+                  <ScorePill score={review.stars} />
+                </View>
+                <Text style={styles.reviewText}>{review.text}</Text>
+              </Card>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.reportButton}
-          onPress={() => navigation.navigate('Report', { locationId, locationName })}
-          accessibilityRole="button"
-          accessibilityLabel={`Report conditions at ${locationName}`}
-        >
-          <Text style={styles.reportButtonText}>Add a report</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
-}
-
-function ReportRow({ report, staleBefore }: { report: Report; staleBefore: number }) {
-  const level = busynessLevel(report.busyness)!;
-  const isStale = new Date(report.created_at).getTime() < staleBefore;
-
-  return (
-    <View style={[styles.row, isStale && styles.rowStale]}>
-      <View style={styles.rowHeader}>
-        <View style={[styles.dot, { backgroundColor: level.color }]} />
-        <Text style={styles.rowLabel}>{level.label}</Text>
-        <Text style={styles.rowTime}>{timeAgo(report.created_at)}</Text>
+        <FadeScrim />
+        <SecondaryButton
+          label="quick rate"
+          height={54}
+          style={styles.footerSecondary}
+          onPress={() => setQuickRateOpen(true)}
+        />
+        <PrimaryButton
+          label="write a review"
+          height={54}
+          style={styles.footerPrimary}
+          onPress={() => navigation.navigate('Rate', { spotId })}
+        />
       </View>
 
-      <View style={styles.rowChips}>
-        <Text style={styles.rowDetail}>{waitLabel(report.wait_minutes)}</Text>
-        {report.open_seats && (
-          <Text style={styles.rowDetail}>· {OPEN_SEATS_LABELS[report.open_seats]}</Text>
-        )}
-        {report.free_food && <Text style={styles.rowFood}>· Free food</Text>}
-      </View>
-
-      {report.note && <Text style={styles.rowNote}>{report.note}</Text>}
-      {isStale && <Text style={styles.staleTag}>Too old to count</Text>}
+      <QuickRateSheet
+        visible={quickRateOpen}
+        spot={spot}
+        onDismiss={() => setQuickRateOpen(false)}
+        onWriteFullReview={(stars, busyLevel) => {
+          setQuickRateOpen(false);
+          navigation.navigate('Rate', { spotId, seedStars: stars, seedBusyLevel: busyLevel });
+        }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
+  screen: { flex: 1, backgroundColor: colors.offWhite },
+  scrollContent: { paddingBottom: 120 },
+  hero: { height: 290 },
+  heroBack: { position: 'absolute', top: spacing.safeTop, left: 18 },
+  heroShare: { position: 'absolute', top: spacing.safeTop, right: 18 },
+  sheet: {
+    marginTop: -28,
+    backgroundColor: colors.offWhite,
+    borderTopLeftRadius: radius.heroOverlap,
+    borderTopRightRadius: radius.heroOverlap,
+    paddingTop: 24,
+    paddingHorizontal: spacing.screen,
+    gap: spacing.section,
   },
-  back: { ...typography.body, color: colors.primary, width: 56 },
-  headerTitle: { ...typography.heading3, color: colors.textPrimary, flex: 1, textAlign: 'center' },
-  headerSpacer: { width: 56 },
-  loading: { marginTop: spacing.xl },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: spacing.sm },
-  listHeader: { ...typography.caption, color: colors.textMuted, marginBottom: spacing.sm },
-  empty: { ...typography.bodySm, color: colors.textMuted, marginTop: spacing.lg },
-  row: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 12,
+  headBlock: { gap: 10 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  area: { fontSize: 15, color: colors.sealGrey },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8 },
+  ratingMeta: { flex: 1, gap: 4 },
+  ratingCount: { fontSize: 13, color: colors.sealGrey },
+  section: { gap: 12 },
+  dayRow: { flexDirection: 'row', gap: 6 },
+  dayChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
   },
-  rowStale: { opacity: 0.55 },
-  rowHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  rowLabel: { ...typography.label, color: colors.textPrimary, flex: 1 },
-  rowTime: { ...typography.caption, color: colors.textMuted },
-  rowChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
-  rowDetail: { ...typography.bodySm, color: colors.textSecondary },
-  rowFood: { ...typography.bodySm, color: '#8A6410', fontWeight: '600' },
-  rowNote: { ...typography.bodySm, color: colors.textPrimary, fontStyle: 'italic' },
-  staleTag: { ...typography.caption, color: colors.textMuted },
+  dayLabel: { fontFamily: fonts.medium, fontSize: 13 },
+  busyCard: { paddingTop: 18, paddingHorizontal: 16, paddingBottom: 14, gap: 14 },
+  busyHeading: { gap: 3 },
+  busyTitle: { fontFamily: fonts.semibold, fontSize: 19, letterSpacing: -0.38 },
+  busySub: { fontSize: 14, color: colors.sealGrey },
+  breakdownCard: { paddingVertical: 6, paddingHorizontal: 18 },
+  breakdownRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 },
+  breakdownLabel: { width: 72, fontSize: 15 },
+  breakdownTrack: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.track, overflow: 'hidden' },
+  breakdownFill: { height: '100%', borderRadius: 4, backgroundColor: colors.polyGreen },
+  breakdownValue: { width: 28, textAlign: 'right', fontFamily: fonts.semibold, fontSize: 15 },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  reviewCard: { padding: 16, gap: 10 },
+  reviewHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  reviewAuthor: { flex: 1, gap: 1 },
+  reviewHandle: { fontFamily: fonts.semibold, fontSize: 15 },
+  reviewWhen: { fontSize: 12, color: colors.sealGrey },
+  reviewText: { fontSize: 15, lineHeight: 22 },
   footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    gap: 10,
+    paddingTop: 14,
+    paddingHorizontal: spacing.screen,
+    paddingBottom: 34,
   },
-  reportButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 30,
-    minHeight: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reportButtonText: { ...typography.label, color: colors.textInverse, fontSize: 16 },
+  footerSecondary: { flex: 1, backgroundColor: colors.offWhite },
+  footerPrimary: { flex: 1.4 },
 });

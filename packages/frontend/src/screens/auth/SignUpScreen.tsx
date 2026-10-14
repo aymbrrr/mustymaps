@@ -1,228 +1,243 @@
 import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, TextInput, TouchableOpacity,
-  SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView,
-} from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, typography, spacing, frostedCard } from '../../constants/theme';
-import { useAuthStore } from '../../stores/authStore';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { EyeIcon, EyeOffIcon } from '../../components/Icons';
+import { useToast } from '../../components/ToastHost';
+import { PrimaryButton } from '../../components/ui/Buttons';
+import { Checkbox, Field } from '../../components/ui/Inputs';
+import { Text } from '../../components/ui/Text';
 import { AuthStackParamList } from '../../navigation/types';
+import { useSessionStore } from '../../stores/sessionStore';
+import { colors, fonts, radius, type } from '../../theme/tokens';
+import { BackChevron, INVALID_EMAIL_MESSAGE, isCalPolyEmail } from './authShared';
 
-type Props = {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
-};
+type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
+
+const MIN_PASSWORD_LENGTH = 8;
+const CODE_LENGTH = 6;
 
 export function SignUpScreen({ navigation }: Props) {
+  const toast = useToast();
+  const status = useSessionStore((state) => state.status);
+  const pendingEmail = useSessionStore((state) => state.pendingEmail);
+  const signUp = useSessionStore((state) => state.signUp);
+  const verifyCode = useSessionStore((state) => state.verifyCode);
+  const resendCode = useSessionStore((state) => state.resendCode);
+  const editEmail = useSessionStore((state) => state.editEmail);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [localError, setLocalError] = useState('');
-  const { signUp, isLoading, error, clearError } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [code, setCode] = useState('');
 
-  const [emailSent, setEmailSent] = useState(false);
+  const awaitingCode = status === 'awaitingCode';
+  const emailOk = isCalPolyEmail(email);
+  const passwordsMatch = confirm.length > 0 && confirm !== password;
+  const canCreate =
+    emailOk && password.length >= MIN_PASSWORD_LENGTH && password === confirm && agreed;
 
-  const handleSignUp = async () => {
-    setLocalError('');
-    clearError();
-
-    if (!email.trim()) { setLocalError('Email is required'); return; }
-    if (password.length < 8) { setLocalError('Password must be at least 8 characters'); return; }
-    if (password !== confirm) { setLocalError('Passwords do not match'); return; }
-
-    await signUp(email.trim().toLowerCase(), password);
-    // If email confirmation is OFF in Supabase: onAuthStateChange fires immediately
-    // and RootNavigator auto-switches to the map. Nothing needed here.
-    // If email confirmation is ON: no session yet, show "check your email" message.
-    setEmailSent(true);
+  const onCreate = async () => {
+    if (!emailOk) {
+      setEmailError(true);
+      return;
+    }
+    const failure = await signUp(email, password);
+    if (failure) toast(failure);
   };
 
-  const displayError = localError || error;
+  const onVerify = async () => {
+    const failure = await verifyCode(code);
+    toast(failure ?? 'you’re in. welcome to musty’s map.');
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.inner}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      <BackChevron onPress={() => (awaitingCode ? editEmail() : navigation.goBack())} />
+
+      {awaitingCode ? (
+        <View>
+          <Text style={[type.sectionLabel, styles.eyebrow]}>almost there</Text>
+          <Text style={styles.title}>
+            check your inbox<Text style={styles.period}>.</Text>
+          </Text>
+          <Text style={styles.sub}>
+            6-digit code sent to <Text style={styles.subStrong}>{pendingEmail}</Text>
+          </Text>
+
+          <Field
+            containerStyle={styles.codeField}
+            style={styles.codeInput}
+            value={code}
+            onChangeText={(next) => setCode(next.replace(/\D/g, '').slice(0, CODE_LENGTH))}
+            placeholder="••••••"
+            keyboardType="number-pad"
+            textContentType="oneTimeCode"
+            maxLength={CODE_LENGTH}
+          />
+
+          <PrimaryButton
+            label="let's go →"
+            onPress={onVerify}
+            disabled={code.length !== CODE_LENGTH}
+            style={styles.verifyButton}
+          />
+
+          <View style={styles.codeLinks}>
+            <Text
               accessibilityRole="button"
-              accessibilityLabel="Go back"
-              style={styles.backButton}
+              style={styles.wrongEmail}
+              onPress={() => {
+                setCode('');
+                editEmail();
+              }}
             >
-              <Text style={styles.backText}>← Back</Text>
-            </TouchableOpacity>
-            <Text style={styles.wordmark}>sensly</Text>
-            <Text style={styles.title}>Create account</Text>
-            <Text style={styles.subtitle}>
-              Your contributions are always anonymous to other users.
+              ← wrong email
+            </Text>
+            <Text
+              accessibilityRole="button"
+              style={styles.resend}
+              onPress={async () => {
+                await resendCode();
+                toast('new code sent');
+              }}
+            >
+              resend code
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <View>
+          <Text style={[type.sectionLabel, styles.formEyebrow]}>sign up</Text>
+          <Text style={styles.signUpTitle}>
+            what&apos;s your <Text style={styles.accent}>.edu</Text> email?
+          </Text>
+          <Text style={styles.sub}>we only use it to verify you&apos;re a student.</Text>
+
+          <Field
+            label="school email"
+            containerStyle={styles.schoolEmailField}
+            value={email}
+            onChangeText={(next) => {
+              setEmail(next);
+              setEmailError(false);
+            }}
+            placeholder="you@calpoly.edu"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            error={emailError ? INVALID_EMAIL_MESSAGE : null}
+          />
+
+          <Field
+            label="password"
+            containerStyle={styles.stackedField}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="8+ characters"
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            textContentType="newPassword"
+            accessory={
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? 'hide password' : 'show password'}
+                onPress={() => setShowPassword((visible) => !visible)}
+                hitSlop={8}
+              >
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              </Pressable>
+            }
+          />
+
+          <Field
+            label="confirm password"
+            containerStyle={styles.stackedField}
+            value={confirm}
+            onChangeText={setConfirm}
+            placeholder="same as above"
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            textContentType="newPassword"
+            error={passwordsMatch ? 'passwords don’t match.' : null}
+          />
+
+          <View style={styles.agreeRow}>
+            <Checkbox checked={agreed} onToggle={() => setAgreed((value) => !value)} />
+            <Text style={styles.agreeText}>
+              i agree to the{' '}
+              <Text style={styles.legalLink} onPress={() => toast('opens terms of service')}>
+                terms of service
+              </Text>
+              ,{' '}
+              <Text style={styles.legalLink} onPress={() => toast('opens privacy policy')}>
+                privacy policy
+              </Text>
+              , and{' '}
+              <Text style={styles.legalLink} onPress={() => toast('opens community guidelines')}>
+                community guidelines
+              </Text>
+              .
             </Text>
           </View>
 
-          <View style={[frostedCard, styles.form]}>
-            {displayError ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{displayError}</Text>
-              </View>
-            ) : null}
+          <PrimaryButton
+            label="create account →"
+            onPress={onCreate}
+            disabled={!canCreate}
+            style={styles.createButton}
+          />
 
-            {emailSent && !error ? (
-              <View style={styles.successBox}>
-                <Text style={styles.successText}>
-                  ✅ Check your email to confirm your account, then sign in.
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('SignIn')}
-                  style={styles.primaryButton}
-                >
-                  <Text style={styles.primaryButtonText}>Go to sign in</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <View style={styles.field}>
-                  <Text style={styles.label}>Email</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="you@example.com"
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoComplete="email"
-                    returnKeyType="next"
-                    accessibilityLabel="Email address"
-                  />
-                </View>
-
-                <View style={styles.field}>
-                  <Text style={styles.label}>Password</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="At least 8 characters"
-                    placeholderTextColor={colors.textMuted}
-                    secureTextEntry
-                    autoComplete="new-password"
-                    returnKeyType="next"
-                    accessibilityLabel="Password"
-                  />
-                </View>
-
-                <View style={styles.field}>
-                  <Text style={styles.label}>Confirm password</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={confirm}
-                    onChangeText={setConfirm}
-                    placeholder="Repeat your password"
-                    placeholderTextColor={colors.textMuted}
-                    secureTextEntry
-                    autoComplete="new-password"
-                    returnKeyType="done"
-                    onSubmitEditing={handleSignUp}
-                    accessibilityLabel="Confirm password"
-                  />
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.primaryButton, (!email || !password || !confirm || isLoading) && styles.disabled]}
-                  onPress={handleSignUp}
-                  disabled={!email || !password || !confirm || isLoading}
-                  accessibilityRole="button"
-                  accessibilityLabel="Create account"
-                >
-                  {isLoading
-                    ? <ActivityIndicator color={colors.textInverse} />
-                    : <Text style={styles.primaryButtonText}>Create account</Text>
-                  }
-                </TouchableOpacity>
-
-                <Text style={styles.privacyNote}>
-                  Your ratings and contributions are always anonymous. We never share your personal data.
-                </Text>
-              </>
-            )}
-          </View>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SignIn')}
-            accessibilityRole="button"
-            style={styles.switchLink}
-          >
-            <Text style={styles.switchText}>
-              Already have an account?{' '}
-              <Text style={styles.switchTextBold}>Sign in</Text>
+          <Text style={styles.footerText}>
+            have an account?{' '}
+            <Text style={styles.footerLink} onPress={() => navigation.replace('SignIn')}>
+              sign in
             </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </Text>
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#DFF6F7' },
-  inner: { flex: 1, paddingHorizontal: spacing.xl },
-  header: { paddingTop: spacing.lg, marginBottom: spacing.xl },
-  backButton: { marginBottom: spacing.md },
-  backText: { ...typography.body, color: colors.primary },
-  wordmark: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: colors.primary,
-    letterSpacing: -1,
+  screen: { flex: 1, backgroundColor: colors.offWhite },
+  content: { paddingTop: 60, paddingHorizontal: 28, paddingBottom: 40 },
+  eyebrow: { marginTop: 30 },
+  formEyebrow: { marginTop: 30 },
+  title: { ...type.signUpTitle, marginTop: 12 },
+  signUpTitle: { ...type.signUpTitle, marginTop: 12 },
+  period: { color: colors.serenityDeep },
+  accent: { color: colors.polyGreen },
+  sub: { fontSize: 15, color: colors.sealGrey, marginTop: 12 },
+  subStrong: { fontFamily: fonts.medium, color: colors.ink },
+  schoolEmailField: { marginTop: 28 },
+  stackedField: { marginTop: 20 },
+  agreeRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginTop: 22 },
+  agreeText: { flex: 1, fontSize: 13, lineHeight: 19, color: colors.sealGrey },
+  legalLink: { color: colors.ink, textDecorationLine: 'underline' },
+  createButton: { marginTop: 24 },
+  footerText: { textAlign: 'center', fontSize: 15, color: colors.sealGrey, marginTop: 18 },
+  footerLink: { fontFamily: fonts.semibold, color: colors.polyGreen },
+  codeField: { marginTop: 28 },
+  codeInput: {
+    height: 64,
+    borderRadius: radius.input,
+    fontFamily: fonts.medium,
+    fontSize: 28,
+    letterSpacing: 14,
     textAlign: 'center',
-    marginBottom: spacing.sm,
   },
-  title: { fontSize: 28, fontWeight: '700', color: colors.textPrimary, marginBottom: spacing.xs, textAlign: 'center' },
-  subtitle: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
-  form: { gap: spacing.md, padding: spacing.lg },
-  errorBox: { backgroundColor: '#FDECEA', borderRadius: 8, padding: spacing.md },
-  errorText: { ...typography.bodySm, color: colors.error },
-  successBox: { backgroundColor: '#E8F4FB', borderRadius: 8, padding: spacing.md, gap: spacing.md },
-  successText: { ...typography.body, color: colors.textPrimary, lineHeight: 22 },
-  field: { gap: spacing.xs },
-  label: { ...typography.label, color: colors.textSecondary },
-  input: {
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(58,172,178,0.4)',
-    borderRadius: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
-    ...typography.body,
-    color: colors.textPrimary,
-    minHeight: 48,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 30,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    minHeight: 52,
-    justifyContent: 'center',
-    marginTop: spacing.sm,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  primaryButtonText: { ...typography.label, color: colors.textInverse, fontSize: 17 },
-  disabled: { opacity: 0.5 },
-  privacyNote: {
-    ...typography.bodySm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  switchLink: { alignItems: 'center', paddingVertical: spacing.xl },
-  switchText: { ...typography.body, color: colors.textSecondary },
-  switchTextBold: { color: colors.primary, fontWeight: '600' },
+  verifyButton: { marginTop: 22 },
+  codeLinks: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  wrongEmail: { fontSize: 14, color: colors.sealGrey },
+  resend: { fontFamily: fonts.semibold, fontSize: 14, color: colors.polyGreen },
 });
