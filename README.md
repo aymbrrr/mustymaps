@@ -91,6 +91,7 @@ auth: {
   persistSession: true,
   detectSessionInUrl: false,
 },
+```
 
 ### Sign In
 
