@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./image-slot.js"></script>
+<style>body{margin:0}a{color:#154734}a:hover{color:#0d2f22}.leaflet-container{background:#EEF1EC;font-family:'Geist',sans-serif}.leaflet-tile-pane{filter:saturate(.75) sepia(.06)}.leaflet-control-attribution{font-size:8px!important;background:rgba(250,249,246,.6)!important}.leaflet-div-icon{background:none;border:none}</style>
+</helmet>
+<div style="width:390px;height:844px;border-radius:54px;background:#FAF9F6;position:relative;overflow:hidden;font-family:'Geist',sans-serif;color:#17231D;-webkit-font-smoothing:antialiased;box-shadow:0 0 0 11px #111, 0 30px 70px rgba(0,0,0,.28)">
+
+<!-- INTRO -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:72px 28px 40px;box-sizing:border-box">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:64px;font-weight:600;letter-spacing:-.06em;line-height:.9;color:#154734">musty's map<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:19px;line-height:1.3;color:#17231D;max-width:280px;text-wrap:pretty">rate where you eat, study &amp; lock in <span style="color:#154734;font-weight:600">@ cal poly slo</span>.</div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:18px 0">
+    <div style="width:250px;height:250px;border-radius:50%;background:#D5E4F4;overflow:hidden;border:6px solid #154734;box-sizing:border-box"><image-slot id="musty-icon" shape="circle" fit="contain" placeholder="drop musty here" style="width:238px;height:238px"></image-slot></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+    <button onClick="{{ onGetStarted }}" style="height:56px;border-radius:999px;border:none;background:#154734;color:#FAF9F6;font:600 17px 'Geist',sans-serif;cursor:pointer;width:100%">get started</button>
+    <div style="font-size:15px;color:#54585A">already have an account? <span onClick="{{ onGoSignIn }}" style="color:#154734;font-weight:600;cursor:pointer">sign in</span></div>
+    <div style="font-size:12px;line-height:1.45;color:#54585A;text-align:center;max-width:280px">by continuing, you agree to the <a href="#" onClick="{{ onTerms }}" style="color:#17231D;text-decoration:underline">terms of service</a> and <a href="#" onClick="{{ onPrivacy }}" style="color:#17231D;text-decoration:underline">privacy policy</a>.</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SIGN IN -->
+<sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:60px 28px 40px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div onClick="{{ onBack }}" style="width:44px;height:44px;margin-left:-10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+  <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:38px">welcome back</div>
+  <div style="font-size:46px;font-weight:600;letter-spacing:-.05em;line-height:1;margin-top:12px">sign in<span style="color:#9DB8D6">.</span></div>
+  <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:40px">email</div>
+  <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@calpoly.edu" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;margin-top:10px;border-color:{{ emailBorder }}">
+  <sc-if value="{{ emailErr }}"><div style="font-size:13px;color:#B3261E;margin-top:8px">needs to be a @calpoly.edu email.</div></sc-if>
+  <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:24px">password</div>
+  <div style="position:relative;margin-top:10px"><input type="{{ pwType }}" value="{{ pw }}" onChange="{{ onPw }}" placeholder="your password" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;padding-right:54px"><div onClick="{{ onTogglePw }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#54585A" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></div></div>
+  <div onClick="{{ onForgot }}" style="align-self:flex-end;margin-top:14px;font-size:15px;font-weight:500;cursor:pointer">forgot password?</div>
+  <button onClick="{{ onSignIn }}" style="height:56px;border-radius:999px;border:none;background:#154734;color:#FAF9F6;font:600 17px 'Geist',sans-serif;cursor:pointer;width:100%;margin-top:26px;opacity:{{ signInOp }}">sign in →</button>
+  <div style="text-align:center;font-size:15px;color:#54585A;margin-top:20px">new here? <span onClick="{{ onGoSignUp }}" style="color:#154734;font-weight:600;cursor:pointer">sign up →</span></div>
+</div>
+</sc-if>
+
+<!-- SIGN UP -->
+<sc-if value="{{ isSignUp }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:60px 28px 40px;box-sizing:border-box;display:flex;flex-direction:column">
+  <div onClick="{{ onBack }}" style="width:44px;height:44px;margin-left:-10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+  <sc-if value="{{ suForm }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column">
+    <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:30px">sign up</div>
+    <div style="font-size:42px;font-weight:600;letter-spacing:-.05em;line-height:1.02;margin-top:12px">what's your <span style="color:#154734">.edu</span> email?</div>
+    <div style="font-size:15px;color:#54585A;margin-top:12px">we only use it to verify you're a student.</div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:28px">school email</div>
+    <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="you@calpoly.edu" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;margin-top:10px;border-color:{{ emailBorder }}">
+    <sc-if value="{{ emailErr }}"><div style="font-size:13px;color:#B3261E;margin-top:8px">needs to be a @calpoly.edu email.</div></sc-if>
+    <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:20px">password</div>
+    <div style="position:relative;margin-top:10px"><input type="{{ pwType }}" value="{{ pw }}" onChange="{{ onPw }}" placeholder="8+ characters" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;padding-right:54px"><div onClick="{{ onTogglePw }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#54585A" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></div></div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:20px">confirm password</div>
+    <input type="{{ pwType }}" value="{{ pw2 }}" onChange="{{ onPw2 }}" placeholder="same as above" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;margin-top:10px;border-color:{{ pw2Border }}">
+    <sc-if value="{{ pwMismatch }}"><div style="font-size:13px;color:#B3261E;margin-top:8px">passwords don't match.</div></sc-if>
+    <div onClick="{{ onAgree }}" style="display:flex;gap:12px;align-items:flex-start;margin-top:22px;cursor:pointer">
+      <div style="width:24px;height:24px;border-radius:7px;flex:none;border:1.5px solid {{ agreeBorder }};background:{{ agreeBg }};display:flex;align-items:center;justify-content:center;color:#FAF9F6;font-size:14px;font-weight:700">{{ agreeMark }}</div>
+      <div style="font-size:13px;line-height:1.45;color:#54585A">i agree to the <a href="#" onClick="{{ onTerms }}" style="color:#17231D;text-decoration:underline">terms of service</a>, <a href="#" onClick="{{ onPrivacy }}" style="color:#17231D;text-decoration:underline">privacy policy</a>, and <a href="#" onClick="{{ onGuidelines }}" style="color:#17231D;text-decoration:underline">community guidelines</a>.</div>
+    </div>
+    <button onClick="{{ onCreate }}" style="height:56px;border-radius:999px;border:none;background:#154734;color:#FAF9F6;font:600 17px 'Geist',sans-serif;cursor:pointer;width:100%;margin-top:24px;opacity:{{ createOp }}">create account →</button>
+    <div style="text-align:center;font-size:15px;color:#54585A;margin-top:18px">have an account? <span onClick="{{ onGoSignIn }}" style="color:#154734;font-weight:600;cursor:pointer">sign in</span></div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ suCode }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column">
+    <div style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#54585A;margin-top:30px">almost there</div>
+    <div style="font-size:42px;font-weight:600;letter-spacing:-.05em;line-height:1.02;margin-top:12px">check your inbox<span style="color:#9DB8D6">.</span></div>
+    <div style="font-size:15px;color:#54585A;margin-top:12px">6-digit code sent to <span style="color:#17231D;font-weight:500">{{ email }}</span></div>
+    <input value="{{ code }}" onChange="{{ onCode }}" placeholder="••••••" inputmode="numeric" style="height:56px;border-radius:18px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 18px;font:400 17px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%;height:64px;margin-top:28px;font-size:28px;font-weight:500;letter-spacing:.5em;text-align:center">
+    <button onClick="{{ onVerify }}" style="height:56px;border-radius:999px;border:none;background:#154734;color:#FAF9F6;font:600 17px 'Geist',sans-serif;cursor:pointer;width:100%;margin-top:22px;opacity:{{ verifyOp }}">let's go →</button>
+    <div style="display:flex;justify-content:space-between;font-size:14px;margin-top:16px">
+      <span onClick="{{ onEditEmail }}" style="color:#54585A;cursor:pointer">← wrong email</span>
+      <span onClick="{{ onResend }}" style="color:#154734;font-weight:600;cursor:pointer">resend code</span>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- MAP -->
+<sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0">
+  <div ref="{{ mapRef }}" style="position:absolute;inset:0;background:#EEF1EC"></div>
+  <div style="position:absolute;top:58px;left:14px;right:14px;z-index:500;display:flex;flex-direction:column;gap:10px;pointer-events:none">
+    <div style="pointer-events:auto;display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px;border-radius:24px;background:rgba(250,249,246,.97);box-shadow:0 4px 18px rgba(23,35,29,.08)">
+      <div style="width:46px;height:46px;border-radius:50%;background:#D5E4F4;overflow:hidden;flex:none"><image-slot id="musty-icon" shape="circle" fit="contain" placeholder="musty" style="width:46px;height:46px"></image-slot></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:21px;font-weight:600;letter-spacing:-.02em">musty's map</div>
+        <div style="font-size:14px;color:#54585A">{{ spotCount }} spots · rn is 2:14 pm</div>
+      </div>
+      <div onClick="{{ onSearch }}" style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4.2-4.2"></path></svg></div>
+    </div>
+    <div style="pointer-events:auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 12px;margin:-4px -2px -12px">
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+        <div onClick="{{ c.onClick }}" style="flex:none;padding:10px 17px;border-radius:999px;background:{{ c.bg }};color:{{ c.color }};font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 2px 10px rgba(23,35,29,.07)">{{ c.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+  <div onClick="{{ onLocate }}" style="position:absolute;right:16px;top:{{ locateTop }}px;z-index:500;width:52px;height:52px;border-radius:50%;background:#FAF9F6;box-shadow:0 4px 16px rgba(23,35,29,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:top .25s"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linejoin="round"><path d="M20 4L4 11l7 2 2 7 7-16z"></path></svg></div>
+
+  <sc-if value="{{ noSel }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;left:12px;right:12px;bottom:100px;z-index:600;background:#FAF9F6;border-radius:28px;padding:10px 16px 12px;box-shadow:0 10px 36px rgba(23,35,29,.16)">
+    <div style="width:36px;height:5px;border-radius:3px;background:rgba(23,35,29,.14);margin:0 auto 12px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 6px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">what's good rn</div>
+      <div style="font-size:13px;color:#54585A">top rated nearby</div>
+    </div>
+    <sc-for list="{{ nearby }}" as="n" hint-placeholder-count="3">
+      <div onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:12px;padding:9px 4px;border-top:{{ n.border }};cursor:pointer">
+        <div style="width:44px;height:44px;border-radius:14px;flex:none;background:{{ n.tile }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:{{ n.tileInk }}">{{ n.typeShort }}</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+          <div style="font-size:16px;font-weight:600;letter-spacing:-.01em">{{ n.name }}</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#54585A"><span style="width:7px;height:7px;border-radius:50%;background:{{ n.dot }}"></span>{{ n.sub }}</div>
+        </div>
+        <div style="white-space:nowrap;flex:none;font-size:15px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ n.rating }}</div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:12px;right:12px;bottom:100px;z-index:600;background:#FAF9F6;border-radius:30px;padding:10px 18px 18px;box-shadow:0 10px 36px rgba(23,35,29,.18);display:flex;flex-direction:column;gap:14px">
+    <div style="width:36px;height:5px;border-radius:3px;background:rgba(23,35,29,.14);margin:0 auto -4px"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="padding:5px 11px;border-radius:999px;background:{{ sel.typeBg }};color:{{ sel.typeInk }};font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">{{ sel.type }}</div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:#fff;border:1px solid rgba(23,35,29,.08);font-size:13px;font-weight:500"><span style="width:7px;height:7px;border-radius:50%;background:{{ sel.liveDot }}"></span>{{ sel.live }}</div>
+      <div style="flex:1"></div>
+      <div onClick="{{ onCloseSel }}" style="width:34px;height:34px;border-radius:50%;background:rgba(23,35,29,.06);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+    </div>
+    <div onClick="{{ onDetails }}" style="display:flex;flex-direction:column;gap:4px;cursor:pointer">
+      <div style="font-size:27px;font-weight:600;letter-spacing:-.035em;line-height:1.05">{{ sel.name }}</div>
+      <div style="font-size:14px;color:#54585A">{{ sel.meta }}</div>
+    </div>
+    <div onClick="{{ onDetails }}" style="display:flex;align-items:flex-end;gap:14px;cursor:pointer">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:30px;font-weight:600;letter-spacing:-.04em;line-height:1">{{ sel.rating }}</div>
+        <div style="font-size:13px;color:#54585A">{{ sel.count }} ratings</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:flex-end;gap:3px;height:40px">
+          <sc-for list="{{ sel.bars }}" as="b" hint-placeholder-count="17">
+            <div style="flex:1;height:{{ b.h }}px;border-radius:3px;background:{{ b.bg }}"></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#54585A"><span>7a</span><span style="color:#154734;font-weight:600">now</span><span>11p</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ onQuick }}" style="flex:1;height:50px;border-radius:999px;border:1px solid rgba(23,35,29,.16);background:transparent;font:600 16px 'Geist',sans-serif;color:#17231D;cursor:pointer">quick rate</button>
+      <button onClick="{{ onRateSel }}" style="flex:1;height:50px;border-radius:999px;border:none;background:#154734;font:600 16px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer">rate it</button>
+      <button onClick="{{ onDetails }}" style="width:50px;height:50px;border-radius:50%;border:none;background:#D5E4F4;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#154734" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- LOCATION -->
+<sc-if value="{{ isLoc }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0">
+  <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:120px;box-sizing:border-box">
+    <div style="height:290px;position:relative;background:repeating-linear-gradient(135deg,#D5E4F4 0 12px,#CADBEE 12px 24px);display:flex;align-items:center;justify-content:center">
+      <div style="font:500 12px ui-monospace,Menlo,monospace;color:#154734;background:rgba(250,249,246,.75);padding:6px 10px;border-radius:8px">[ photo · {{ L.name }} ]</div>
+      <div onClick="{{ onBack }}" style="position:absolute;top:58px;left:18px;width:44px;height:44px;border-radius:50%;background:#FAF9F6;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(23,35,29,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+      <div onClick="{{ onShareSpot }}" style="position:absolute;top:58px;right:18px;width:44px;height:44px;border-radius:50%;background:#FAF9F6;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(23,35,29,.1)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></div>
+    </div>
+    <div style="margin-top:-28px;position:relative;background:#FAF9F6;border-radius:28px 28px 0 0;padding:24px 20px 0;display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="padding:5px 11px;border-radius:999px;background:{{ L.typeBg }};color:{{ L.typeInk }};font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">{{ L.type }}</div>
+          <div style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid rgba(23,35,29,.08);font-size:13px;font-weight:500;white-space:nowrap">{{ L.closes }}</div>
+          <div style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid rgba(23,35,29,.08);font-size:13px;font-weight:500;white-space:nowrap">{{ L.walk }} walk</div>
+        </div>
+        <div style="font-size:34px;font-weight:600;letter-spacing:-.04em;line-height:1">{{ L.name }}</div>
+        <div style="font-size:15px;color:#54585A">{{ L.area }}</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+          <div style="font-size:40px;font-weight:600;letter-spacing:-.05em;line-height:.9">{{ L.rating }}</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;gap:2px;font-size:11px">
+              <sc-for list="{{ L.stars }}" as="st" hint-placeholder-count="5"><span style="color:{{ st.c }}">★</span></sc-for>
+            </div>
+            <div style="font-size:13px;color:#54585A">{{ L.count }} ratings</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;background:#17231D;color:#FAF9F6;font-size:14px;font-weight:500"><span style="width:8px;height:8px;border-radius:50%;background:{{ L.liveDot }}"></span>{{ L.live }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">how busy</div>
+        <div style="display:flex;gap:6px">
+          <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+            <div onClick="{{ d.onClick }}" style="flex:1;text-align:center;padding:8px 0;border-radius:999px;background:{{ d.bg }};color:{{ d.color }};font-size:13px;font-weight:500;cursor:pointer;border:1px solid {{ d.border }}">{{ d.label }}</div>
+          </sc-for>
+        </div>
+        <div style="background:#fff;border-radius:24px;padding:18px 16px 14px;display:flex;flex-direction:column;gap:14px;border:1px solid rgba(23,35,29,.05)">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-size:19px;font-weight:600;letter-spacing:-.02em">{{ busyTitle }}</div>
+            <div style="font-size:14px;color:#54585A">{{ busySub }}</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:4px;height:104px">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="17">
+              <div onClick="{{ b.onClick }}" style="flex:1;height:100%;display:flex;align-items:flex-end;cursor:pointer"><div style="width:100%;height:{{ b.h }}px;border-radius:5px;background:{{ b.bg }};transition:height .3s, background .2s"></div></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#54585A;margin-top:-6px"><span>7a</span><span>10a</span><span>1p</span><span>4p</span><span>7p</span><span>11p</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">the breakdown</div>
+        <div style="background:#fff;border-radius:24px;padding:6px 18px;border:1px solid rgba(23,35,29,.05)">
+          <sc-for list="{{ L.subs }}" as="sb" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-top:{{ sb.border }}">
+              <div style="width:72px;font-size:15px">{{ sb.label }}</div>
+              <div style="flex:1;height:8px;border-radius:4px;background:#EEF0EC;overflow:hidden"><div style="height:100%;width:{{ sb.w }}%;background:#154734;border-radius:4px"></div></div>
+              <div style="width:28px;text-align:right;font-size:15px;font-weight:600">{{ sb.val }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ L.tags }}" as="tg" hint-placeholder-count="3"><div style="padding:8px 13px;border-radius:999px;background:#D5E4F4;color:#154734;font-size:14px;font-weight:500">{{ tg }}</div></sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">reviews</div>
+          <div style="font-size:13px;color:#54585A">newest first</div>
+        </div>
+        <sc-for list="{{ L.reviews }}" as="rv" hint-placeholder-count="3">
+          <div style="background:#fff;border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:10px;border:1px solid rgba(23,35,29,.05)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div onClick="{{ rv.onUser }}" style="width:38px;height:38px;border-radius:50%;background:#D5E4F4;color:#154734;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;cursor:pointer">{{ rv.init }}</div>
+              <div onClick="{{ rv.onUser }}" style="flex:1;display:flex;flex-direction:column;gap:1px;cursor:pointer">
+                <div style="font-size:15px;font-weight:600">@{{ rv.handle }}</div>
+                <div style="font-size:12px;color:#54585A">{{ rv.when }}</div>
+              </div>
+              <div style="white-space:nowrap;flex:none;padding:5px 10px;border-radius:999px;background:#154734;color:#FAF9F6;font-size:13px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ rv.score }}</div>
+            </div>
+            <div style="font-size:15px;line-height:1.45;text-wrap:pretty">{{ rv.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 34px;background:linear-gradient(rgba(250,249,246,0),#FAF9F6 30%);display:flex;gap:10px">
+    <button onClick="{{ onQuick }}" style="flex:1;height:54px;border-radius:999px;border:1px solid rgba(23,35,29,.16);background:#FAF9F6;font:600 16px 'Geist',sans-serif;color:#17231D;cursor:pointer">quick rate</button>
+    <button onClick="{{ onRateLoc }}" style="flex:1.4;height:54px;border-radius:999px;border:none;background:#154734;font:600 16px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer">write a review</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- RATE -->
+<sc-if value="{{ isRate }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0">
+  <div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 0 130px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;padding:4px 18px 10px">
+      <div onClick="{{ onBack }}" style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+      <div style="flex:1;text-align:center;font-size:17px;font-weight:600">rate a spot</div>
+      <div style="width:44px"></div>
+    </div>
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:6px 18px 4px">
+      <sc-for list="{{ spotPicks }}" as="sp" hint-placeholder-count="4">
+        <div onClick="{{ sp.onClick }}" style="flex:none;padding:9px 15px;border-radius:999px;background:{{ sp.bg }};color:{{ sp.color }};border:1px solid {{ sp.border }};font-size:14px;font-weight:500;cursor:pointer">{{ sp.label }}</div>
+      </sc-for>
+    </div>
+    <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">overall</div>
+        <div style="font-size:34px;font-weight:600;letter-spacing:-.04em;line-height:1.05">how was {{ rateName }}<span style="color:#9DB8D6">?</span></div>
+        <div style="display:flex;gap:6px;margin-top:10px;align-items:center">
+          <sc-for list="{{ rStars }}" as="rs" hint-placeholder-count="5">
+            <div onClick="{{ rs.onClick }}" style="font-size:24px;line-height:1;color:{{ rs.c }};cursor:pointer;transition:transform .15s" style-active="transform:scale(.9)">★</div>
+          </sc-for>
+          <div style="margin-left:10px;font-size:16px;font-weight:600;color:#154734">{{ rCaption }}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">the details</div>
+        <div style="background:#fff;border-radius:24px;padding:4px 16px;border:1px solid rgba(23,35,29,.05)">
+          <sc-for list="{{ rSubs }}" as="rsb" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-top:{{ rsb.border }}">
+              <div style="width:78px;font-size:15px">{{ rsb.label }}</div>
+              <div style="flex:1;display:flex;gap:5px">
+                <sc-for list="{{ rsb.dots }}" as="dt" hint-placeholder-count="5">
+                  <div onClick="{{ dt.onClick }}" style="flex:1;height:30px;border-radius:9px;background:{{ dt.bg }};cursor:pointer;transition:background .15s"></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">how busy is it rn?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ rBusyOpts }}" as="bo" hint-placeholder-count="5">
+            <div onClick="{{ bo.onClick }}" style="padding:10px 15px;border-radius:999px;background:{{ bo.bg }};color:{{ bo.color }};border:1px solid {{ bo.border }};font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:{{ bo.dot }}"></span>{{ bo.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">tags</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ rTagOpts }}" as="to" hint-placeholder-count="6">
+            <div onClick="{{ to.onClick }}" style="padding:9px 14px;border-radius:999px;background:{{ to.bg }};color:{{ to.color }};font-size:14px;font-weight:500;cursor:pointer">{{ to.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">anything else?</div>
+        <textarea value="{{ rText }}" onChange="{{ onRText }}" placeholder="the tea, the tips, the best seat…" style="min-height:108px;border-radius:20px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:16px;font:400 16px/1.45 'Geist',sans-serif;color:#17231D;outline:none;resize:none;box-sizing:border-box;width:100%"></textarea>
+        <div onClick="{{ onPhoto }}" style="height:88px;border-radius:20px;border:1.5px dashed rgba(21,71,52,.3);background:repeating-linear-gradient(135deg,rgba(213,228,244,.5) 0 10px,rgba(213,228,244,.2) 10px 20px);display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:500;color:#154734;cursor:pointer">+ add a photo</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 34px;background:linear-gradient(rgba(250,249,246,0),#FAF9F6 30%)">
+    <button onClick="{{ onPost }}" style="width:100%;height:56px;border-radius:999px;border:none;background:#154734;font:600 17px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer;opacity:{{ postOp }}">{{ postLabel }}</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- PROFILE (YOURS) -->
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 0 110px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;gap:10px;padding:0 18px 0 22px">
+    <div style="flex:1;font-size:24px;font-weight:600;letter-spacing:-.02em">@{{ me.handle }}</div>
+    <div onClick="{{ onShare }}" style="width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(23,35,29,.06)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></div>
+    <div onClick="{{ onSettings }}" style="width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(23,35,29,.06)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"></path><circle cx="16" cy="7" r="2.5"></circle><circle cx="10" cy="17" r="2.5"></circle></svg></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 24px 0;text-align:center">
+    <div style="position:relative;width:108px;height:108px;border-radius:50%;background:#D5E4F4;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:500;color:#154734;margin-bottom:8px">{{ me.init }}<div style="position:absolute;right:-6px;bottom:4px;padding:4px 10px;border-radius:999px;background:#154734;color:#FAF9F6;font-size:11px;font-weight:600;letter-spacing:.06em;border:3px solid #FAF9F6">TOP RATER</div></div>
+    <div style="font-size:26px;font-weight:600;letter-spacing:-.03em">{{ me.name }}</div>
+    <div style="font-size:14px;color:#54585A">{{ me.major }}</div>
+    <div style="font-size:15px;line-height:1.4;max-width:280px;text-wrap:pretty">{{ me.bio }}</div>
+  </div>
+  <div style="display:flex;justify-content:center;margin:22px 20px 0;background:#fff;border-radius:24px;padding:16px 0;border:1px solid rgba(23,35,29,.05)">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:24px;font-weight:600">{{ myCount }}</div><div style="font-size:13px;color:#54585A">ratings</div></div>
+    <div style="width:1px;background:rgba(23,35,29,.08)"></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="white-space:nowrap;flex:none;font-size:24px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ myAvg }}</div><div style="font-size:13px;color:#54585A">avg given</div></div>
+    <div style="width:1px;background:rgba(23,35,29,.08)"></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:24px;font-weight:600">86</div><div style="font-size:13px;color:#54585A">followers</div></div>
+  </div>
+  <div style="display:flex;gap:10px;padding:14px 20px 0">
+    <button onClick="{{ onEdit }}" style="flex:1;height:50px;border-radius:999px;border:1px solid rgba(23,35,29,.16);background:transparent;font:600 16px 'Geist',sans-serif;color:#17231D;cursor:pointer">edit profile</button>
+    <button onClick="{{ onShare }}" style="flex:1;height:50px;border-radius:999px;border:none;background:#154734;font:600 16px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer">share profile</button>
+  </div>
+  <div style="padding:28px 20px 0;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">your ratings</div>
+    <div style="display:flex;gap:8px">
+      <sc-for list="{{ profTabs }}" as="pt" hint-placeholder-count="3">
+        <div onClick="{{ pt.onClick }}" style="padding:9px 16px;border-radius:999px;background:{{ pt.bg }};color:{{ pt.color }};border:1px solid {{ pt.border }};font-size:14px;font-weight:500;cursor:pointer">{{ pt.label }}</div>
+      </sc-for>
+    </div>
+    <sc-for list="{{ myList }}" as="m" hint-placeholder-count="4">
+      <div onClick="{{ m.onClick }}" style="background:#fff;border-radius:24px;padding:14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;border:1px solid rgba(23,35,29,.05)" style-active="transform:scale(.985)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:46px;height:46px;border-radius:15px;flex:none;background:{{ m.tile }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:{{ m.tileInk }}">{{ m.typeShort }}</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:16px;font-weight:600">{{ m.name }}</div>
+            <div style="font-size:13px;color:#54585A">{{ m.sub }}</div>
+          </div>
+          <div style="white-space:nowrap;flex:none;padding:6px 11px;border-radius:999px;background:#154734;color:#FAF9F6;font-size:14px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ m.score }}</div>
+        </div>
+        <div style="font-size:15px;line-height:1.4;color:#17231D;text-wrap:pretty">{{ m.text }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- PUBLIC PROFILE -->
+<sc-if value="{{ isPublic }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:40px;box-sizing:border-box">
+  <div style="background:#D5E4F4;padding:58px 20px 26px;border-radius:0 0 34px 34px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between">
+      <div onClick="{{ onBack }}" style="width:44px;height:44px;border-radius:50%;background:#FAF9F6;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+      <div onClick="{{ onShareUser }}" style="width:44px;height:44px;border-radius:50%;background:#FAF9F6;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="width:84px;height:84px;border-radius:50%;background:#154734;color:#FAF9F6;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:500;flex:none">{{ U.init }}</div>
+      <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+        <div style="font-size:26px;font-weight:600;letter-spacing:-.03em;color:#154734">{{ U.name }}</div>
+        <div style="font-size:14px;color:#17231D">@{{ U.handle }} · {{ U.meta }}</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:20px 20px 0;display:flex;flex-direction:column;gap:26px">
+    <div style="display:flex;background:#fff;border-radius:24px;padding:16px 0;border:1px solid rgba(23,35,29,.05)">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:24px;font-weight:600">{{ U.ratings }}</div><div style="font-size:13px;color:#54585A">ratings</div></div>
+      <div style="width:1px;background:rgba(23,35,29,.08)"></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="white-space:nowrap;flex:none;font-size:24px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ U.avg }}</div><div style="font-size:13px;color:#54585A">avg given</div></div>
+      <div style="width:1px;background:rgba(23,35,29,.08)"></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:24px;font-weight:600">{{ U.followers }}</div><div style="font-size:13px;color:#54585A">followers</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">how they rate</div>
+      <div style="background:#fff;border-radius:24px;padding:16px 18px;display:flex;flex-direction:column;gap:9px;border:1px solid rgba(23,35,29,.05)">
+        <sc-for list="{{ U.dist }}" as="ds" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="white-space:nowrap;flex:none;width:28px;font-size:14px;font-weight:600">{{ ds.label }}<span style="font-size:.72em;vertical-align:.1em">★</span></div>
+            <div style="flex:1;height:10px;border-radius:5px;background:#EEF0EC;overflow:hidden"><div style="height:100%;width:{{ ds.w }}%;background:#154734;border-radius:5px"></div></div>
+            <div style="width:28px;text-align:right;font-size:13px;color:#54585A">{{ ds.count }}</div>
+          </div>
+        </sc-for>
+        <div style="height:1px;background:rgba(23,35,29,.07);margin:8px 0 4px"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:500"><span>food · {{ U.foodPct }}%</span><span style="color:#54585A">study · {{ U.studyPct }}%</span></div>
+        <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;gap:3px"><div style="width:{{ U.foodPct }}%;background:#154734;border-radius:6px"></div><div style="flex:1;background:#D5E4F4;border-radius:6px"></div></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ U.labels }}" as="lb" hint-placeholder-count="3"><div style="padding:8px 13px;border-radius:999px;background:#fff;border:1px solid rgba(23,35,29,.1);font-size:14px;font-weight:500">{{ lb }}</div></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">go-to spots</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px">
+        <sc-for list="{{ U.top }}" as="tp" hint-placeholder-count="3">
+          <div onClick="{{ tp.onClick }}" style="flex:none;width:150px;background:#fff;border-radius:22px;overflow:hidden;cursor:pointer;border:1px solid rgba(23,35,29,.05)">
+            <div style="height:92px;background:repeating-linear-gradient(135deg,#D5E4F4 0 9px,#CADBEE 9px 18px);display:flex;align-items:center;justify-content:center;font:500 10px ui-monospace,Menlo,monospace;color:#154734">[ photo ]</div>
+            <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:15px;font-weight:600;line-height:1.2">{{ tp.name }}</div>
+              <div style="white-space:nowrap;flex:none;font-size:13px;color:#54585A">they gave <span style="font-size:.72em;vertical-align:.1em">★</span> {{ tp.score }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">recent ratings</div>
+      <sc-for list="{{ U.recent }}" as="rc" hint-placeholder-count="3">
+        <div onClick="{{ rc.onClick }}" style="background:#fff;border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;border:1px solid rgba(23,35,29,.05)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:1px"><div style="font-size:16px;font-weight:600">{{ rc.name }}</div><div style="font-size:12px;color:#54585A">{{ rc.when }}</div></div>
+            <div style="white-space:nowrap;flex:none;padding:5px 10px;border-radius:999px;background:#154734;color:#FAF9F6;font-size:13px;font-weight:600"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ rc.score }}</div>
+          </div>
+          <div style="font-size:15px;line-height:1.45;text-wrap:pretty">{{ rc.text }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:56px 0 50px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;padding:4px 18px 8px">
+    <div onClick="{{ onBack }}" style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17231D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></div>
+  </div>
+  <div style="padding:6px 22px 4px;font-size:40px;font-weight:600;letter-spacing:-.045em">settings<span style="color:#9DB8D6">.</span></div>
+  <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="4">
+    <div style="padding:22px 18px 0;display:flex;flex-direction:column;gap:10px">
+      <div style="padding:0 4px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">{{ sec.title }}</div>
+      <div style="background:#fff;border-radius:22px;overflow:hidden;border:1px solid rgba(23,35,29,.05)">
+        <sc-for list="{{ sec.rows }}" as="row" hint-placeholder-count="3">
+          <div onClick="{{ row.onClick }}" style="display:flex;align-items:center;gap:12px;padding:13px 16px;min-height:54px;box-sizing:border-box;border-top:{{ row.border }};opacity:{{ row.op }};cursor:pointer;transition:opacity .2s">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:16px;color:{{ row.color }};font-weight:{{ row.weight }}">{{ row.label }}</div>
+              <sc-if value="{{ row.hasSub }}"><div style="font-size:13px;color:#54585A;line-height:1.35">{{ row.sub }}</div></sc-if>
+            </div>
+            <sc-if value="{{ row.isToggle }}"><div style="width:51px;height:31px;border-radius:16px;background:{{ row.track }};position:relative;flex:none;transition:background .2s"><div style="position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.18);transform:translateX({{ row.knob }}px);transition:transform .2s"></div></div></sc-if>
+            <sc-if value="{{ row.showChev }}"><div style="display:flex;align-items:center;gap:6px;color:#54585A;font-size:15px;flex:none">{{ row.value }}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#54585A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ sec.hasFoot }}"><div style="padding:0 6px;font-size:13px;line-height:1.4;color:#54585A">{{ sec.foot }}</div></sc-if>
+    </div>
+  </sc-for>
+  <div style="padding:28px 22px 0;text-align:center;font-size:13px;color:#54585A">musty's map 1.0 (12) · made at cal poly</div>
+</div>
+</sc-if>
+
+<!-- FEED -->
+<sc-if value="{{ isFeed }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 0 110px;box-sizing:border-box">
+  <div style="display:flex;align-items:center;gap:10px;padding:0 20px">
+    <div style="width:42px;height:42px;border-radius:50%;background:#D5E4F4;overflow:hidden;flex:none"><image-slot id="musty-icon" shape="circle" fit="contain" placeholder="musty" style="width:42px;height:42px"></image-slot></div>
+    <div style="flex:1;font-size:25px;font-weight:600;letter-spacing:-.04em;color:#154734">musty's map<span style="color:#9DB8D6">.</span></div>
+  </div>
+  <div onClick="{{ onSearch }}" style="margin:16px 20px 0;height:50px;border-radius:999px;background:#fff;border:1px solid rgba(23,35,29,.07);display:flex;align-items:center;gap:10px;padding:0 18px;color:#54585A;font-size:16px;cursor:pointer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#54585A" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4.2-4.2"></path></svg>search a spot or a person</div>
+  <div style="padding:26px 20px 12px;display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">trending rn</div><div style="font-size:13px;color:#54585A">busiest at 2:14 pm</div></div>
+  <div style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:0 20px 4px">
+    <sc-for list="{{ trending }}" as="tr" hint-placeholder-count="3">
+      <div onClick="{{ tr.onClick }}" style="flex:none;width:210px;background:#fff;border-radius:24px;overflow:hidden;cursor:pointer;border:1px solid rgba(23,35,29,.05)">
+        <div style="height:112px;position:relative;background:repeating-linear-gradient(135deg,#D5E4F4 0 10px,#CADBEE 10px 20px);display:flex;align-items:center;justify-content:center;font:500 10px ui-monospace,Menlo,monospace;color:#154734">[ photo ]
+          <div style="position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:#17231D;color:#FAF9F6;font:500 12px 'Geist',sans-serif"><span style="width:7px;height:7px;border-radius:50%;background:{{ tr.liveDot }}"></span>{{ tr.live }}</div>
+          <div style="position:absolute;top:10px;right:10px;padding:5px 9px;border-radius:999px;background:#FAF9F6;color:#154734;font:600 12px 'Geist',sans-serif">#{{ tr.rank }}</div>
+        </div>
+        <div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:3px">
+          <div style="font-size:16px;font-weight:600;letter-spacing:-.01em">{{ tr.name }}</div>
+          <div style="white-space:nowrap;flex:none;font-size:13px;color:#54585A"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ tr.rating }} · {{ tr.checkins }} check-ins this hr</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:28px 20px 12px;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">all spots</div>
+    <div style="display:flex;gap:8px">
+      <sc-for list="{{ feedChips }}" as="fc" hint-placeholder-count="3">
+        <div onClick="{{ fc.onClick }}" style="padding:9px 16px;border-radius:999px;background:{{ fc.bg }};color:{{ fc.color }};border:1px solid {{ fc.border }};font-size:14px;font-weight:500;cursor:pointer">{{ fc.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:12px">
+    <sc-for list="{{ feedList }}" as="f" hint-placeholder-count="4">
+      <div onClick="{{ f.onClick }}" style="background:#fff;border-radius:24px;padding:14px;display:flex;flex-direction:column;gap:12px;cursor:pointer;border:1px solid rgba(23,35,29,.05)" style-active="transform:scale(.985)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:46px;height:46px;border-radius:15px;flex:none;background:{{ f.tile }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:{{ f.tileInk }}">{{ f.typeShort }}</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:17px;font-weight:600;letter-spacing:-.01em">{{ f.name }}</div>
+            <div style="font-size:13px;color:#54585A">{{ f.walk }} · {{ f.closes }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px"><div style="white-space:nowrap;flex:none;font-size:20px;font-weight:600;letter-spacing:-.03em"><span style="font-size:.72em;vertical-align:.1em">★</span> {{ f.rating }}</div><div style="font-size:11px;color:#54585A">{{ f.count }} ratings</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;white-space:nowrap;width:104px"><span style="width:8px;height:8px;border-radius:50%;background:{{ f.liveDot }}"></span>{{ f.live }}</div>
+          <div style="flex:1;height:6px;border-radius:3px;background:#EEF0EC;overflow:hidden"><div style="height:100%;width:{{ f.busyPct }}%;background:{{ f.liveDot }};border-radius:3px"></div></div>
+        </div>
+        <div style="background:#F1F5FA;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:15px;line-height:1.4;text-wrap:pretty">“{{ f.quote }}”</div>
+          <div style="white-space:nowrap;flex:none;font-size:12px;color:#54585A">top comment · @{{ f.quoteBy }} · <span style="font-size:.72em;vertical-align:.1em">★</span> {{ f.quoteScore }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- LEADERBOARD -->
+<sc-if value="{{ isLb }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:58px 0 110px;box-sizing:border-box">
+  <div style="padding:8px 22px 0;font-size:40px;font-weight:600;letter-spacing:-.045em">leaderboard<span style="color:#9DB8D6">.</span></div>
+  <div style="margin:16px 20px 0;padding:4px;border-radius:999px;background:rgba(23,35,29,.06);display:flex;gap:2px">
+    <sc-for list="{{ lbTabs }}" as="lt" hint-placeholder-count="4">
+      <div onClick="{{ lt.onClick }}" style="flex:1;text-align:center;padding:10px 0;border-radius:999px;background:{{ lt.bg }};color:{{ lt.color }};font-size:14px;font-weight:{{ lt.weight }};cursor:pointer;box-shadow:{{ lt.shadow }};transition:background .15s">{{ lt.label }}</div>
+    </sc-for>
+  </div>
+  <div style="padding:12px 24px 0;font-size:14px;color:#54585A">{{ lbDesc }}</div>
+  <div style="display:flex;gap:8px;padding:14px 20px 0">
+    <sc-for list="{{ lbScopes }}" as="ls" hint-placeholder-count="2">
+      <div onClick="{{ ls.onClick }}" style="padding:9px 16px;border-radius:999px;background:{{ ls.bg }};color:{{ ls.color }};border:1px solid {{ ls.border }};font-size:14px;font-weight:500;cursor:pointer">{{ ls.label }}</div>
+    </sc-for>
+  </div>
+  <div style="display:flex;align-items:flex-end;gap:10px;padding:22px 20px 0">
+    <sc-for list="{{ podium }}" as="pd" hint-placeholder-count="3">
+      <div onClick="{{ pd.onClick }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer">
+        <div style="position:relative;width:{{ pd.size }}px;height:{{ pd.size }}px;border-radius:50%;background:{{ pd.avBg }};color:{{ pd.avInk }};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600">{{ pd.init }}<div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:#FAF9F6;border:2px solid {{ pd.avBg }};color:#154734;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ pd.rank }}</div></div>
+        <div style="font-size:13px;font-weight:600;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@{{ pd.handle }}</div>
+        <div style="width:100%;height:{{ pd.h }}px;border-radius:18px 18px 8px 8px;background:{{ pd.bg }};color:{{ pd.ink }};display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:12px;box-sizing:border-box"><div style="font-size:24px;font-weight:600;letter-spacing:-.03em">{{ pd.val }}</div><div style="font-size:11px;opacity:.8">{{ pd.unit }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin:16px 20px 0;border-radius:20px;border:1.5px solid #154734;padding:12px 16px;display:flex;align-items:center;gap:12px;background:#fff">
+    <div style="font-size:18px;font-weight:600;color:#154734;width:30px">#{{ myRank }}</div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#D5E4F4;color:#154734;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">{{ me.init }}</div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:1px"><div style="font-size:15px;font-weight:600">you</div><div style="font-size:12px;color:#54585A">{{ myGap }}</div></div>
+    <div style="font-size:18px;font-weight:600">{{ myVal }}</div>
+  </div>
+  <div style="margin:12px 20px 0;background:#fff;border-radius:24px;padding:4px 16px;border:1px solid rgba(23,35,29,.05)">
+    <sc-for list="{{ lbRows }}" as="lr" hint-placeholder-count="6">
+      <div onClick="{{ lr.onClick }}" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:{{ lr.border }};cursor:pointer">
+        <div style="width:24px;font-size:15px;font-weight:600;color:#54585A">{{ lr.rank }}</div>
+        <div style="width:40px;height:40px;border-radius:50%;background:{{ lr.avBg }};color:{{ lr.avInk }};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex:none">{{ lr.init }}</div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><div style="font-size:15px;font-weight:600">@{{ lr.handle }}</div><div style="font-size:12px;color:{{ lr.subColor }}">{{ lr.sub }}</div></div>
+        <div style="font-size:17px;font-weight:600">{{ lr.val }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- TAB BAR -->
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:0;right:0;bottom:0;height:88px;z-index:700;background:rgba(250,249,246,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(23,35,29,.07);display:flex;align-items:flex-start;justify-content:space-around;padding:10px 6px 0;box-sizing:border-box">
+  <div onClick="{{ onTabFeed }}" style="width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:{{ tabFeedColor }}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"></rect><path d="M8 9h8M8 12.5h8M8 16h5"></path></svg><div style="font-size:11px;font-weight:600">feed</div></div>
+  <div onClick="{{ onTabMap }}" style="width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:{{ tabMapColor }}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"></path></svg><div style="font-size:11px;font-weight:600">map</div></div>
+  <div onClick="{{ onTabRate }}" style="width:62px;height:62px;border-radius:50%;background:#154734;margin-top:-26px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 20px rgba(21,71,52,.35);flex:none" style-active="transform:scale(.94)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FAF9F6" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>
+  <div onClick="{{ onTabLb }}" style="width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:{{ tabLbColor }}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"></path><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8 20h8M10 17h4v3h-4z"></path></svg><div style="font-size:11px;font-weight:600">ranks</div></div>
+  <div onClick="{{ onTabYou }}" style="width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:{{ tabYouColor }}"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20.5c1.4-3.7 4.2-5.5 7.5-5.5s6.1 1.8 7.5 5.5"></path></svg><div style="font-size:11px;font-weight:600">you</div></div>
+</div>
+</sc-if>
+
+<!-- QUICK RATE -->
+<sc-if value="{{ quickOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onQClose }}" style="position:absolute;inset:0;z-index:900;background:rgba(23,35,29,.38);display:flex;align-items:flex-end;padding:12px;box-sizing:border-box">
+  <div onClick="{{ stop }}" style="width:100%;background:#FAF9F6;border-radius:34px;padding:10px 20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+    <div style="width:36px;height:5px;border-radius:3px;background:rgba(23,35,29,.14);margin:0 auto"></div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">quick rate · 5 sec</div>
+      <div style="font-size:28px;font-weight:600;letter-spacing:-.035em">{{ qName }}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;background:#fff;border-radius:22px;padding:10px 18px">
+      <sc-for list="{{ qStars }}" as="qs" hint-placeholder-count="5">
+        <div onClick="{{ qs.onClick }}" style="font-size:24px;line-height:1;color:{{ qs.c }};cursor:pointer">★</div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:15px;font-weight:600">how busy rn?</div>
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ qBusyOpts }}" as="qb" hint-placeholder-count="5">
+          <div onClick="{{ qb.onClick }}" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:68px;border-radius:16px;background:{{ qb.bg }};color:{{ qb.color }};border:1px solid {{ qb.border }};font-size:11.5px;font-weight:500;line-height:1;white-space:nowrap;cursor:pointer"><span style="width:16px;height:16px;border-radius:50%;background:{{ qb.dot }};flex:none"></span><span>{{ qb.label }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+    <button onClick="{{ onQPost }}" style="height:56px;border-radius:999px;border:none;background:#154734;font:600 17px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer;opacity:{{ qPostOp }}">post it</button>
+    <div onClick="{{ onQFull }}" style="text-align:center;font-size:14px;color:#54585A;cursor:pointer">got more to say? <span style="color:#154734;font-weight:600">write a full review →</span></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- EDIT PROFILE -->
+<sc-if value="{{ editOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:900;background:rgba(23,35,29,.38);display:flex;align-items:flex-end">
+  <div style="width:100%;background:#FAF9F6;border-radius:34px 34px 0 0;padding:12px 20px 38px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+    <div style="width:36px;height:5px;border-radius:3px;background:rgba(23,35,29,.14);margin:0 auto 4px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div onClick="{{ onCancelEdit }}" style="font-size:16px;color:#54585A;cursor:pointer">cancel</div>
+      <div style="font-size:17px;font-weight:600">edit profile</div>
+      <div onClick="{{ onSaveEdit }}" style="font-size:16px;color:#154734;font-weight:600;cursor:pointer">save</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:6px 0">
+      <div style="width:64px;height:64px;border-radius:50%;background:#D5E4F4;color:#154734;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500">{{ me.init }}</div>
+      <div onClick="{{ onPhoto }}" style="font-size:15px;font-weight:600;color:#154734;cursor:pointer">change photo</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">name</div><input value="{{ draft.name }}" onChange="{{ onDName }}" style="height:52px;border-radius:16px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 16px;font:400 16px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%"></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">handle</div><input value="{{ draft.handle }}" onChange="{{ onDHandle }}" style="height:52px;border-radius:16px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 16px;font:400 16px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%"></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">major · year</div><input value="{{ draft.major }}" onChange="{{ onDMajor }}" style="height:52px;border-radius:16px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:0 16px;font:400 16px 'Geist',sans-serif;color:#17231D;outline:none;box-sizing:border-box;width:100%"></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#54585A">bio</div><textarea value="{{ draft.bio }}" onChange="{{ onDBio }}" style="min-height:80px;border-radius:16px;border:1px solid rgba(23,35,29,.1);background:#fff;padding:14px 16px;font:400 16px/1.4 'Geist',sans-serif;color:#17231D;outline:none;resize:none;box-sizing:border-box;width:100%"></textarea></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SHARE PROFILE -->
+<sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onCloseShare }}" style="position:absolute;inset:0;z-index:900;background:rgba(23,35,29,.38);display:flex;align-items:flex-end;padding:12px;box-sizing:border-box">
+  <div onClick="{{ stop }}" style="width:100%;background:#FAF9F6;border-radius:34px;padding:10px 18px 20px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+    <div style="width:36px;height:5px;border-radius:3px;background:rgba(23,35,29,.14);margin:0 auto"></div>
+    <div style="background:#154734;border-radius:26px;padding:22px;color:#FAF9F6;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:#D5E4F4;overflow:hidden"><image-slot id="musty-icon" shape="circle" fit="contain" placeholder="" style="width:32px;height:32px"></image-slot></div><div style="font-size:21px;font-weight:600;letter-spacing:-.04em">musty's map<span style="color:#D5E4F4">.</span></div></div><div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#D5E4F4">cal poly</div></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:60px;height:60px;border-radius:50%;background:#D5E4F4;color:#154734;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500">{{ me.init }}</div>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:21px;font-weight:600">{{ me.name }}</div><div style="font-size:14px;color:#D5E4F4">@{{ me.handle }}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="padding:7px 12px;border-radius:999px;background:rgba(250,249,246,.14);font-size:13px">{{ myCount }} ratings</div>
+        <div style="white-space:nowrap;flex:none;padding:7px 12px;border-radius:999px;background:rgba(250,249,246,.14);font-size:13px">avg <span style="font-size:.72em;vertical-align:.1em">★</span> {{ myAvg }}</div>
+        <div style="padding:7px 12px;border-radius:999px;background:#D5E4F4;color:#154734;font-size:13px;font-weight:500">top spot: kennedy lib</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:8px 8px 8px 16px;border:1px solid rgba(23,35,29,.06)">
+      <div style="flex:1;font-size:15px;color:#17231D">mustysmap.app/@{{ me.handle }}</div>
+      <button onClick="{{ onCopy }}" style="height:40px;padding:0 16px;border-radius:999px;border:none;background:#D5E4F4;color:#154734;font:600 14px 'Geist',sans-serif;cursor:pointer">{{ copyLabel }}</button>
+    </div>
+    <button onClick="{{ onShareVia }}" style="height:54px;border-radius:999px;border:none;background:#154734;font:600 16px 'Geist',sans-serif;color:#FAF9F6;cursor:pointer">share via…</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- DELETE CONFIRM -->
+<sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:950;background:rgba(23,35,29,.45);display:flex;align-items:center;justify-content:center;padding:36px;box-sizing:border-box">
+  <div style="background:#FAF9F6;border-radius:30px;padding:24px 20px 18px;display:flex;flex-direction:column;gap:10px;text-align:center">
+    <div style="font-size:21px;font-weight:600;letter-spacing:-.02em">delete your account?</div>
+    <div style="font-size:15px;line-height:1.4;color:#54585A;text-wrap:pretty">this permanently wipes your profile, ratings and reviews. no undo.</div>
+    <button onClick="{{ onConfirmDel }}" style="margin-top:8px;height:50px;border-radius:999px;border:none;background:#B3261E;color:#fff;font:600 16px 'Geist',sans-serif;cursor:pointer">delete forever</button>
+    <button onClick="{{ onCancelDel }}" style="height:50px;border-radius:999px;border:1px solid rgba(23,35,29,.14);background:transparent;color:#17231D;font:600 16px 'Geist',sans-serif;cursor:pointer">never mind</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- TOAST -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:60px;left:0;right:0;z-index:1000;display:flex;justify-content:center;pointer-events:none"><div style="padding:12px 18px;border-radius:999px;background:#17231D;color:#FAF9F6;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2)">{{ toast }}</div></div>
+</sc-if>
+
+<!-- STATUS BAR -->
+<div style="position:absolute;top:0;left:0;right:0;height:54px;z-index:1100;display:flex;align-items:center;justify-content:space-between;padding:4px 32px 0 42px;box-sizing:border-box;pointer-events:none">
+  <div style="font-size:17px;font-weight:600;color:#17231D">2:14</div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="display:flex;align-items:flex-end;gap:2px;height:12px"><div style="width:3px;height:4px;border-radius:1px;background:#17231D"></div><div style="width:3px;height:6px;border-radius:1px;background:#17231D"></div><div style="width:3px;height:9px;border-radius:1px;background:#17231D"></div><div style="width:3px;height:12px;border-radius:1px;background:#17231D"></div></div>
+    <div style="width:25px;height:12px;border-radius:4px;border:1.5px solid rgba(23,35,29,.4);padding:1.5px;box-sizing:border-box"><div style="width:80%;height:100%;border-radius:2px;background:#17231D"></div></div>
+  </div>
+</div>
+<div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000;z-index:1101"></div>
+<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#17231D;z-index:1101"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:412,&quot;height&quot;:866},&quot;start&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;signin&quot;,&quot;signup&quot;,&quot;feed&quot;,&quot;map&quot;,&quot;location&quot;,&quot;rate&quot;,&quot;leaderboard&quot;,&quot;profile&quot;,&quot;public&quot;,&quot;settings&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;locId&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;klib&quot;,&quot;1901&quot;,&quot;vg&quot;,&quot;uu&quot;,&quot;bsa&quot;,&quot;cm&quot;,&quot;pcv&quot;],&quot;default&quot;:&quot;klib&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;quick&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;userId&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;jordan&quot;,&quot;priya&quot;,&quot;sam&quot;],&quot;default&quot;:&quot;jordan&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pinStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;name&quot;,&quot;score&quot;],&quot;default&quot;:&quot;name&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tiles&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;voyager&quot;,&quot;light&quot;],&quot;default&quot;:&quot;voyager&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const G='#154734',INK='#17231D',GREY='#54585A',SER='#D5E4F4',OW='#FAF9F6',LINE='1px solid rgba(23,35,29,.07)';
+const NOW=7;
+const hl=h=>h===12?'12p':h<12?h+'a':(h-12)+'p';
+const LEVELS=['dead','chill','lively','busy','packed'];
+const LDOT=['#9AA3A0','#3E8E63','#C9A227','#D9822B','#C2412D'];
+const lvl=v=>v<20?0:v<40?1:v<60?2:v<80?3:4;
+const DAYS=['mon','tue','wed','thu','fri','sat','sun'],DF=[1,1.05,1,.95,.8,.45,.6];
+const SUBL={study:['noise','outlets','wifi','seats'],food:['taste','value','wait','portions']};
+const XTAGS={study:['lock-in spot','hidden gem','group friendly','go early'],food:['worth it','overpriced','hidden gem','go early']};
+const CAP=['','nah','meh','solid','really good','elite'];
+const LOCS=[
+{id:'klib',name:'kennedy library',short:'kennedy lib',type:'study',area:'floor 4 · quiet zone',lat:35.30175,lng:-120.66395,rating:4.6,count:312,closes:'open till 12a',walk:'3 min',tags:['outlets everywhere','dead silent','fast wifi','ac is freezing'],subs:[4.8,4.5,4.2,3.1],busy:[8,12,25,48,66,78,84,90,92,86,74,68,64,58,46,30,18]},
+{id:'1901',name:'1901 marketplace',short:'1901',type:'food',area:'university union · 2nd floor',lat:35.29990,lng:-120.65850,rating:4.1,count:540,closes:'open till 9p',walk:'5 min',tags:['poke bowls','fast line before 11:30','pricey'],subs:[4.2,3.6,3.4,4.0],busy:[20,45,40,30,55,92,88,60,42,38,52,80,76,50,30,12,5]},
+{id:'vg',name:'vista grande',short:'vista grande',type:'food',area:'dining hall · all you can eat',lat:35.29880,lng:-120.65560,rating:3.8,count:421,closes:'open till 10p',walk:'9 min',tags:['dessert bar','late night','taco tuesday'],subs:[3.7,4.4,3.9,4.8],busy:[30,62,40,25,40,85,70,35,25,30,75,90,70,45,30,20,10]},
+{id:'uu',name:'UU plaza',short:'UU plaza',type:'study',area:'outdoor · shaded tables',lat:35.30045,lng:-120.65935,rating:4.0,count:188,closes:'always open',walk:'6 min',tags:['outdoor','people watching','spotty wifi'],subs:[2.6,1.8,3.0,4.2],busy:[5,10,20,35,55,75,80,72,60,45,30,20,12,8,5,3,2]},
+{id:'bsa',name:'baker science atrium',short:'baker atrium',type:'study',area:'bldg 180 · ground floor',lat:35.30140,lng:-120.66050,rating:4.4,count:156,closes:'open till 11p',walk:'4 min',tags:['whiteboards','group friendly','sunny'],subs:[3.4,4.6,4.5,3.9],busy:[5,15,35,55,62,58,70,74,68,60,45,35,30,26,18,10,5]},
+{id:'cm',name:'campus market',short:'campus market',type:'food',area:'grab & go · snacks',lat:35.30310,lng:-120.66200,rating:3.9,count:207,closes:'open till 11p',walk:'7 min',tags:['energy drinks','snacks','open late'],subs:[3.5,3.0,4.6,3.2],busy:[15,30,35,30,40,60,55,45,40,45,50,55,50,48,52,40,25]},
+{id:'pcv',name:'poly canyon lounge',short:'pcv lounge',type:'study',area:'poly canyon village',lat:35.30460,lng:-120.65700,rating:4.2,count:98,closes:'open 24h',walk:'12 min',tags:['comfy couches','dead after 10p','resident vibes'],subs:[3.9,3.7,4.1,4.4],busy:[5,8,10,12,15,18,22,25,30,35,45,55,62,66,60,48,30]}
+];
+const REV={
+klib:[{u:'jordan',s:5,w:'2h ago',t:'floor 4 before 9am is a religious experience. bring a hoodie, the ac does not play.'},{u:'priya',s:4,w:'yesterday',t:'outlets at every table on the north side. south side is a gamble.'},{u:'sam',s:4,w:'3d ago',t:'got a seat at 2p on a tuesday which felt illegal.'}],
+'1901':[{u:'priya',s:5,w:'40m ago',t:'poke line moves fast if you go before 11:30. after that, good luck.'},{u:'jordan',s:3,w:'1d ago',t:'solid, but $14 for a bowl is crazy work.'},{u:'sam',s:4,w:'4d ago',t:'the chicken tenders are carrying this rating.'}],
+vg:[{u:'sam',s:4,w:'5h ago',t:'all you can eat + dessert bar = i am not leaving.'},{u:'jordan',s:3,w:'2d ago',t:'hit or miss. taco tuesday is a hit.'}],
+uu:[{u:'priya',s:4,w:'1d ago',t:'best people watching on campus. do not try to take a zoom call here.'},{u:'jordan',s:4,w:'6d ago',t:'shade tables go fast after 11.'}],
+bsa:[{u:'jordan',s:5,w:'3h ago',t:'whiteboards on every wall. our group project lives here now.'},{u:'priya',s:4,w:'2d ago',t:'sunny, loud-ish, great outlets.'}],
+cm:[{u:'sam',s:4,w:'8h ago',t:'celsius always stocked. that is the review.'},{u:'priya',s:3,w:'3d ago',t:'fine for snacks, sad for meals.'}],
+pcv:[{u:'sam',s:5,w:'1d ago',t:'couches are elite and it is dead after 10p.'},{u:'jordan',s:4,w:'4d ago',t:'solid late-night option if you live up here.'}]};
+const USERS={
+jordan:{name:'jordan kim',handle:'jkim.eats',meta:'mech e · 4th yr',ratings:128,avg:3.9,followers:214,dist:[38,46,28,11,5],food:58,labels:['early bird','library regular','tough on prices'],top:[['klib',5],['bsa',5],['1901',3]]},
+priya:{name:'priya shah',handle:'priyastudies',meta:'bio · 2nd yr',ratings:74,avg:4.2,followers:131,dist:[30,28,10,4,2],food:46,labels:['poke loyalist','outlet hunter','generous rater'],top:[['1901',5],['klib',4],['uu',4]]},
+sam:{name:'sam ortega',handle:'samuel.o',meta:'business · 3rd yr',ratings:91,avg:4.1,followers:97,dist:[29,37,18,5,2],food:71,labels:['snack scout','night owl','dessert first'],top:[['pcv',5],['vg',4],['cm',4]]}};
+const MINE=[{loc:'klib',score:5,when:'sep 26',text:'floor 4 before 9am is the move. north side for outlets.'},{loc:'1901',score:4,when:'sep 24',text:'poke line was 6 min at 11:15. by noon it was out the door.'},{loc:'bsa',score:5,when:'sep 22',text:'whiteboards + outlets. group project heaven.'},{loc:'vg',score:3,when:'sep 19',text:'dessert bar carried. entrée was mid.'},{loc:'uu',score:4,when:'sep 15',text:'good for a sunny hour, not a real study sesh.'},{loc:'cm',score:3,when:'sep 12',text:'celsius stocked, chips not.'}];
+const byId=id=>LOCS.find(l=>l.id===id)||LOCS[0];
+const initials=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const tile=t=>t==='food'?{tile:G,tileInk:OW,typeShort:'eat'}:{tile:SER,tileInk:G,typeShort:'study'};
+const LBP=[{id:'jordan',h:'jkim.eats',n:'jordan kim'},{id:'sam',h:'samuel.o',n:'sam ortega'},{id:'priya',h:'priyastudies',n:'priya shah'},{id:'lena',h:'lena.lockin',n:'lena park'},{id:'dev',h:'devdoesdining',n:'dev patel'},{id:'kai',h:'kaistudies',n:'kai nguyen'},{id:'me',h:'',n:''},{id:'noah',h:'noahsnacks',n:'noah lee'},{id:'ella',h:'ella.slo',n:'ella brooks'},{id:'max',h:'maxatkennedy',n:'max ruiz'}];
+const LBV={ratings:[128,91,74,66,58,51,47,44,39,33],reviews:[61,40,52,22,35,18,19,27,12,15],spots:[34,29,31,24,27,22,21,19,18,16],streak:[42,17,23,9,12,30,14,6,11,8]};
+const LBM={ratings:['ratings','spots you\u2019ve rated, all time','ratings'],reviews:['reviews','ratings with a written review','reviews'],spots:['spots','different places you\u2019ve rated','spots'],streak:['streak','days in a row with a rating','days']};
+const BACK={signin:'login',signup:'login',feed:'feed',leaderboard:'leaderboard',location:'map',rate:'map',public:'location',settings:'profile'};
+
+class Component extends DCLogic {
+  state=(()=>{const p=this.props||{};const s=p.start||'login';return {
+    screen:s,stack:[],sel:s==='map'?(p.locId||null):null,loc:p.locId||'klib',filter:'all',
+    quick:!!p.quick,qStars:0,qBusy:null,toast:null,day:0,hour:NOW,
+    loginStep:'email',email:'',code:'',emailErr:false,pw:'',pw2:'',agree:false,showPw:false,
+    set:{notifs:true,muteAll:false,replies:true,follows:true,busy:false,sounds:true,badges:true,precise:true,publicProfile:true,showRatings:true,tracking:false,reduceMotion:false,haptics:true},
+    edit:false,share:false,copied:false,confirm:false,
+    me:{name:'maya reyes',handle:'mayaeats',major:'comm studies · 3rd yr',bio:'rating every iced latte on campus so you don\u2019t have to.'},
+    draft:null,mine:MINE,profTab:'all',user:p.userId||'jordan',following:false,
+    feedFilter:'all',lbTab:'ratings',lbScope:'all',r:{overall:p.start==='rate'?4:0,subs:p.start==='rate'?{0:4,1:3}:{},busy:p.start==='rate'?3:null,tags:p.start==='rate'?['poke bowls']:[],text:''}};})();
+  mapRef=React.createRef();
+
+  componentDidMount(){this.syncMap();}
+  componentDidUpdate(){this.syncMap();}
+  componentWillUnmount(){if(this.map){this.map.remove();this.map=null;}clearTimeout(this.tt);clearTimeout(this.mt);}
+
+  syncMap(){
+    const el=this.mapRef.current;
+    if(this.map&&(!el||this.map.getContainer()!==el)){this.map.remove();this.map=null;this.markers=null;}
+    if(el&&!this.map){
+      const L=window.L;
+      if(!L){clearTimeout(this.mt);this.mt=setTimeout(()=>this.syncMap(),150);return;}
+      this.map=L.map(el,{zoomControl:false,zoomSnap:.1,center:[35.3016,-120.6602],zoom:15.9});
+      this.map.attributionControl.setPrefix(false);
+      this.tileKey=null;this.markers={};
+      L.marker([35.3009,-120.6614],{interactive:false,icon:L.divIcon({className:'',iconSize:[0,0],html:'<div style="transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:rgba(21,71,52,.16);display:flex;align-items:center;justify-content:center"><div style="width:15px;height:15px;border-radius:50%;background:#154734;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)"></div></div>'})}).addTo(this.map);
+      this.map.on('click',()=>this.setState({sel:null}));
+      if(this.state.sel){const l=byId(this.state.sel);this.map.setView([l.lat-0.0016,l.lng],15.9,{animate:false});}
+    }
+    if(this.map)this.updateMap();
+  }
+  updateMap(){
+    const L=window.L,{sel,filter}=this.state,ps=this.props.pinStyle||'name';
+    const tk=this.props.tiles==='light'?'light':'voyager';
+    if(this.tileKey!==tk){if(this.tiles)this.tiles.remove();this.tiles=L.tileLayer(tk==='light'?'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}':'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:tk==='light'?16:19,attribution:'Tiles © Esri'}).addTo(this.map);this.tileKey=tk;const tp=this.map.getPane('tilePane');if(tp)tp.style.filter=tk==='light'?'sepia(.08) brightness(1.02)':'saturate(.65) sepia(.08) brightness(1.03)';}
+    LOCS.forEach(l=>{
+      const show=this.matches(l,filter),ex=this.markers[l.id];
+      if(!show){if(ex){ex.m.remove();delete this.markers[l.id];}return;}
+      const on=sel===l.id,sig=on+'|'+ps;
+      if(ex&&ex.sig===sig)return;
+      if(ex)ex.m.remove();
+      const bg=on?G:'#FAF9F6',ink=on?OW:INK,dot=l.type==='food'?(on?SER:G):SER,dotB=l.type==='food'?'transparent':G;
+      const label=ps==='score'?`<span style="font-size:.72em">★</span> ${l.rating}`:`${l.short}<span style="opacity:.6;font-weight:500;margin-left:6px">${l.rating}</span>`;
+      const html=`<div style="position:absolute;left:0;top:0;transform:translate(-50%,calc(-100% - 6px)) scale(${on?1.08:1});transform-origin:bottom center;display:flex;flex-direction:column;align-items:center;cursor:pointer"><div style="display:flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 13px 8px 9px;border-radius:999px;background:${bg};color:${ink};font:600 14px Geist,sans-serif;box-shadow:0 4px 14px rgba(23,35,29,.18)"><span style="width:12px;height:12px;border-radius:50%;background:${dot};border:2px solid ${dotB};box-sizing:border-box"></span>${label}</div><div style="width:10px;height:10px;background:${bg};transform:rotate(45deg);margin-top:-6px"></div></div>`;
+      const m=L.marker([l.lat,l.lng],{icon:L.divIcon({className:'',iconSize:[0,0],html}),zIndexOffset:on?1000:0}).addTo(this.map);
+      m.on('click',e=>{L.DomEvent.stopPropagation(e);this.selectLoc(l.id);});
+      this.markers[l.id]={m,sig};
+    });
+  }
+  matches(l,f){return f==='all'||f===l.type||(f==='quiet'&&lvl(l.busy[NOW])<=1)||(f==='top'&&l.rating>=4.2);}
+  selectLoc(id){const l=byId(id);this.setState({sel:id,loc:id});if(this.map)this.map.panTo([l.lat-0.0016,l.lng]);}
+  go(screen,extra){this.setState(s=>({stack:[...s.stack,s.screen],screen,quick:false,...(extra||{})}));}
+  back(){this.setState(s=>{const st=[...s.stack];const prev=st.pop()||BACK[s.screen]||'map';return {stack:st,screen:prev};});}
+  tab(screen){this.setState({screen,stack:[],quick:false});}
+  toast(t){clearTimeout(this.tt);this.setState({toast:t});this.tt=setTimeout(()=>this.setState({toast:null}),2200);}
+  resetR(){return {overall:0,subs:{},busy:null,tags:[],text:''};}
+
+  renderVals(){
+    const s=this.state,set=s.set,loc=byId(s.loc),scr=s.screen;
+    const liveOf=l=>{const i=lvl(l.busy[NOW]);return {live:LEVELS[i]+' rn',liveDot:LDOT[i]};};
+    const typeChip=l=>l.type==='food'?{typeBg:G,typeInk:OW,type:'eat'}:{typeBg:SER,typeInk:G,type:'study'};
+    const stars5=(v,pick)=>[1,2,3,4,5].map(n=>({c:n<=v?G:'#DCDFDA',onClick:pick?()=>pick(n):null}));
+    const pill=(on)=>({bg:on?G:'#fff',color:on?OW:INK,border:on?G:'rgba(23,35,29,.1)'});
+
+    // login
+    const emailOk=/@calpoly\.edu$/i.test(s.email.trim());
+    // map
+    const chips=[['all','all'],['eat','food'],['study','study'],['quiet rn','quiet'],['4.2+','top']].map(([label,k])=>{const on=s.filter===k;return {label,bg:on?G:'rgba(250,249,246,.94)',color:on?OW:INK,onClick:()=>this.setState({filter:k,sel:null})};});
+    const vis=LOCS.filter(l=>this.matches(l,s.filter));
+    const nearby=[...vis].sort((a,b)=>b.rating-a.rating).slice(0,3).map((l,i)=>{const lv=liveOf(l);return {...tile(l.type),name:l.name,rating:l.rating,dot:lv.liveDot,sub:`${l.walk} · ${lv.live}`,border:i?LINE:'none',onClick:()=>this.selectLoc(l.id)};});
+    const selL=s.sel?byId(s.sel):null;
+    const sel=selL?{...typeChip(selL),...liveOf(selL),name:selL.name,meta:`${selL.area} · ${selL.closes} · ${selL.walk}`,rating:selL.rating,count:selL.count,bars:selL.busy.map((v,i)=>({h:Math.max(4,v*.4),bg:i===NOW?G:(i<NOW?'#B9CCE2':SER)}))}:null;
+    // location
+    const dayBusy=loc.busy.map(v=>Math.min(100,Math.round(v*DF[s.day])));
+    const hv=dayBusy[s.hour],isNow=s.day===0&&s.hour===NOW;
+    const busyTitle=isNow?`${LEVELS[lvl(hv)]} right now`:`usually ${LEVELS[lvl(hv)]} ${DAYS[s.day]} at ${hl(7+s.hour)}`;
+    const busySub=(loc.type==='food'?`~${Math.max(1,Math.round(hv*.16))} min wait`:`~${Math.max(5,100-hv)}% of seats open`)+(isNow?' · from 38 check-ins this hour':' · tap a bar to peek');
+    const bars=dayBusy.map((v,i)=>({h:Math.max(6,v),bg:i===s.hour?G:(s.day===0&&i===NOW?'#7FA08F':SER),onClick:()=>this.setState({hour:i})}));
+    const days=DAYS.map((d,i)=>({label:i===0?'today':d,...pill(i===s.day),onClick:()=>this.setState({day:i})}));
+    const L={...typeChip(loc),...liveOf(loc),name:loc.name,area:loc.area,closes:loc.closes,walk:loc.walk,rating:loc.rating,count:loc.count,tags:loc.tags,
+      stars:stars5(Math.round(loc.rating)),
+      subs:SUBL[loc.type].map((label,i)=>({label,val:loc.subs[i].toFixed(1),w:loc.subs[i]/5*100,border:i?LINE:'none'})),
+      reviews:(REV[loc.id]||[]).map(r=>({init:initials(USERS[r.u].name),handle:USERS[r.u].handle,when:r.w,score:r.s,text:r.t,onUser:()=>this.go('public',{user:r.u,following:false})}))};
+    // rate
+    const R=s.r,setR=p=>this.setState(st=>({r:{...st.r,...p}}));
+    const rStars=stars5(R.overall,n=>setR({overall:n}));
+    const rSubs=SUBL[loc.type].map((label,i)=>({label,border:i?LINE:'none',dots:[1,2,3,4,5].map(n=>({bg:n<=(R.subs[i]||0)?G:'#EEF0EC',onClick:()=>setR({subs:{...R.subs,[i]:n}})}))}));
+    const busyOpts=(cur,pick)=>LEVELS.map((label,i)=>({label,dot:LDOT[i],...pill(cur===i),onClick:()=>pick(i)}));
+    const rTagOpts=[...loc.tags,...XTAGS[loc.type]].map(label=>{const on=R.tags.includes(label);return {label,bg:on?G:SER,color:on?OW:G,onClick:()=>setR({tags:on?R.tags.filter(t=>t!==label):[...R.tags,label]})};});
+    const spotPicks=LOCS.map(l=>({label:l.short,...pill(l.id===s.loc),onClick:()=>this.setState({loc:l.id,r:this.resetR()})}));
+    // profile
+    const mine=s.mine,avg=(mine.reduce((a,m)=>a+m.score,0)/mine.length).toFixed(1);
+    const cnt=t=>t==='all'?mine.length:mine.filter(m=>byId(m.loc).type===t).length;
+    const profTabs=[['all','all'],['eat','food'],['study','study']].map(([n,k])=>({label:`${n} · ${cnt(k)}`,...pill(s.profTab===k),onClick:()=>this.setState({profTab:k})}));
+    const myList=mine.filter(m=>s.profTab==='all'||byId(m.loc).type===s.profTab).map(m=>{const l=byId(m.loc);return {...tile(l.type),name:l.name,sub:`rated ${m.when}`,score:m.score,text:m.text,onClick:()=>this.go('location',{loc:l.id,day:0,hour:NOW})};});
+    const me={...s.me,init:initials(s.me.name)};
+    const d=s.draft||s.me,setD=k=>e=>{const v=e.target.value;this.setState(st=>({draft:{...(st.draft||st.me),[k]:v}}));};
+    // public
+    const u=USERS[s.user],mx=Math.max(...u.dist);
+    const U={...u,init:initials(u.name),foodPct:u.food,studyPct:100-u.food,
+      dist:u.dist.map((c,i)=>({label:5-i,count:c,w:c/mx*100})),
+      top:u.top.map(([id,sc])=>({name:byId(id).name,score:sc,onClick:()=>this.go('location',{loc:id,day:0,hour:NOW})})),
+      recent:LOCS.flatMap(l=>(REV[l.id]||[]).filter(r=>r.u===s.user).map(r=>({name:l.name,when:r.w,score:r.s,text:r.t,onClick:()=>this.go('location',{loc:l.id,day:0,hour:NOW})})))};
+    // settings
+    const T=(k,label,sub,dis)=>({kind:'t',k,label,sub,dis}),N=(label,value,act,danger)=>({kind:'n',label,value,act,danger});
+    const off=!set.notifs||set.muteAll,info=t=>()=>this.toast(t);
+    const secs=[
+      {title:'notifications',foot:'you can also manage these in iOS settings → musty\u2019s map.',rows:[T('notifs','allow notifications'),T('muteAll','mute all','pause every push. no dings, no buzz.',!set.notifs),T('replies','replies to your reviews',null,off),T('follows','new followers',null,off),T('busy','busy alerts','ping me when a spot i rated clears out',off),T('sounds','sounds',null,off),T('badges','badge app icon',null,off)]},
+      {title:'location',foot:'used to show spots near you. never shown on your profile.',rows:[N('location access','while using',info('opens iOS settings')),T('precise','precise location')]},
+      {title:'privacy',rows:[T('publicProfile','public profile','anyone at cal poly can see your ratings'),T('showRatings','show ratings on profile'),T('tracking','allow tracking','measure ads across other apps. off by default.'),N('blocked users','none',info('you haven\u2019t blocked anyone')),N('download my data','',info('we\u2019ll email you a copy'))]},
+      {title:'accessibility',rows:[T('reduceMotion','reduce motion'),T('haptics','haptics'),N('text size','system',info('follows iOS text size'))]},
+      {title:'legal',rows:[N('terms of service','',info('opens terms')),N('privacy policy','',info('opens privacy policy')),N('community guidelines','',info('opens guidelines'))]},
+      {title:'account',rows:[N('email','mreyes@calpoly.edu',info('verified school email')),N('change password','',info('reset link sent')),N('sign out','',()=>this.setState({screen:'login',stack:[],loginStep:'email',email:'',code:''}),true),N('delete account','',()=>this.setState({confirm:true}),true)]}];
+    const sections=secs.map(sec=>({title:sec.title,foot:sec.foot||'',hasFoot:!!sec.foot,rows:sec.rows.map((r,i)=>{const on=!!set[r.k];return {label:r.label,sub:r.sub||'',hasSub:!!r.sub,isToggle:r.kind==='t',showChev:r.kind==='n'&&!r.danger,value:r.value||'',border:i?LINE:'none',op:r.dis?.4:1,color:r.danger?'#B3261E':INK,weight:r.danger?600:400,track:on?G:'#E2E4E0',knob:on?20:0,onClick:r.kind==='t'?(r.dis?null:()=>this.setState(st=>({set:{...st.set,[r.k]:!st.set[r.k]}}))):r.act};})}));
+
+    const topRev=l=>{const rv=[...(REV[l.id]||[])].sort((a,b)=>b.s-a.s)[0];return rv?{quote:rv.t,quoteBy:USERS[rv.u].handle,quoteScore:rv.s}:{quote:'no reviews yet',quoteBy:'—',quoteScore:'—'};};
+    const trending=[...LOCS].sort((a,b)=>b.busy[NOW]-a.busy[NOW]).slice(0,4).map((l,i)=>({...liveOf(l),rank:i+1,name:l.name,rating:l.rating,checkins:Math.round(l.busy[NOW]*.45),onClick:()=>this.go('location',{loc:l.id,day:0,hour:NOW})}));
+    const feedChips=[['all','all'],['eat','food'],['study','study']].map(([label,k])=>({label,...pill(s.feedFilter===k),onClick:()=>this.setState({feedFilter:k})}));
+    const feedList=LOCS.filter(l=>s.feedFilter==='all'||l.type===s.feedFilter).sort((a,b)=>b.rating-a.rating).map(l=>({...tile(l.type),...liveOf(l),...topRev(l),name:l.name,walk:l.walk+' walk',closes:l.closes,rating:l.rating,count:l.count,busyPct:l.busy[NOW],onClick:()=>this.go('location',{loc:l.id,day:0,hour:NOW})}));
+    const wk=(v,i)=>s.lbScope==='week'?Math.max(1,Math.round(v/8)+((i*7)%5)):v;
+    const lbSorted=LBP.map((p,i)=>({...p,v:wk(LBV[s.lbTab][i],i)})).sort((a,b)=>b.v-a.v).map((p,i)=>({...p,rank:i+1}));
+    const unit=LBM[s.lbTab][2],openU=id=>USERS[id]?()=>this.go('public',{user:id}):()=>this.toast('profile preview only for jordan, priya & sam');
+    const av=p=>p.id==='me'?{init:me.init,avBg:SER,avInk:G}:{init:initials(p.n),avBg:['#E6ECE4','#D5E4F4','#EAE6DD'][p.rank%3],avInk:INK};
+    const hdl=p=>p.id==='me'?s.me.handle+' (you)':p.h;
+    const pc=lbSorted.slice(0,3),podium=[pc[1],pc[0],pc[2]].map(p=>({...av(p),rank:p.rank,handle:hdl(p),val:p.v,unit,size:p.rank===1?68:56,h:p.rank===1?118:p.rank===2?92:76,bg:p.rank===1?G:'#fff',ink:p.rank===1?OW:INK,onClick:openU(p.id),...(p.rank===1?{avBg:G,avInk:OW}:{})}));
+    const meRow=lbSorted.find(p=>p.id==='me'),above=lbSorted[meRow.rank-2];
+    const lbRows=lbSorted.slice(3).map((p,i)=>({...av(p),rank:p.rank,handle:hdl(p),val:p.v,border:i?LINE:'none',sub:p.id==='me'?'that\u2019s you':(i%3===0?'+'+(3+i)+' this week':'cal poly'),subColor:p.id==='me'||i%3===0?G:GREY,onClick:p.id==='me'?()=>this.tab('profile'):openU(p.id)}));
+    const lbTabs=Object.keys(LBM).map(k=>{const on=s.lbTab===k;return {label:LBM[k][0],bg:on?'#fff':'transparent',color:on?G:INK,weight:on?600:500,shadow:on?'0 1px 4px rgba(23,35,29,.1)':'none',onClick:()=>this.setState({lbTab:k})};});
+    const lbScopes=[['all cal poly','all'],['this week','week']].map(([label,k])=>({label,...pill(s.lbScope===k),onClick:()=>this.setState({lbScope:k})}));
+    return {
+      isFeed:scr==='feed',isLb:scr==='leaderboard',trending,feedChips,feedList,podium,lbRows,lbTabs,lbScopes,lbDesc:LBM[s.lbTab][1]+(s.lbScope==='week'?' · this week':''),
+      myRank:meRow.rank,myVal:meRow.v,myGap:above?(above.v-meRow.v+1)+' more to pass @'+hdl(above):'you\u2019re #1. stay humble.',
+      tabFeedColor:scr==='feed'?G:GREY,tabLbColor:scr==='leaderboard'?G:GREY,onTabFeed:()=>this.tab('feed'),onTabLb:()=>this.tab('leaderboard'),
+      isLogin:scr==='login',isMap:scr==='map',isLoc:scr==='location',isRate:scr==='rate',isProfile:scr==='profile',isPublic:scr==='public',isSettings:scr==='settings',
+      showTabs:['map','profile','feed','leaderboard'].includes(scr),tabMapColor:scr==='map'?G:GREY,tabYouColor:scr==='profile'?G:GREY,
+      onTabMap:()=>this.tab('map'),onTabYou:()=>this.tab('profile'),onTabRate:()=>this.go('rate',{loc:s.sel||s.loc,r:this.resetR()}),
+      isSignIn:scr==='signin',isSignUp:scr==='signup',suForm:s.loginStep==='email',suCode:s.loginStep==='code',
+      onGetStarted:()=>this.go('signup',{loginStep:'email',emailErr:false}),onGoSignIn:()=>this.setState({screen:'signin',stack:['login'],emailErr:false}),onGoSignUp:()=>this.setState({screen:'signup',stack:['login'],loginStep:'email',emailErr:false}),
+      onTerms:e=>{e.preventDefault();e.stopPropagation();this.toast('opens terms of service');},onPrivacy:e=>{e.preventDefault();e.stopPropagation();this.toast('opens privacy policy');},onGuidelines:e=>{e.preventDefault();e.stopPropagation();this.toast('opens community guidelines');},
+      pw:s.pw,pw2:s.pw2,pwType:s.showPw?'text':'password',onTogglePw:()=>this.setState({showPw:!s.showPw}),onPw:e=>this.setState({pw:e.target.value}),onPw2:e=>this.setState({pw2:e.target.value}),
+      pwMismatch:s.pw2.length>0&&s.pw2!==s.pw,pw2Border:s.pw2.length>0&&s.pw2!==s.pw?'#B3261E':'rgba(23,35,29,.1)',
+      agreeBg:s.agree?G:'#fff',agreeBorder:s.agree?G:'rgba(23,35,29,.25)',agreeMark:s.agree?'✓':'',onAgree:()=>this.setState({agree:!s.agree}),
+      signInOp:emailOk&&s.pw.length>0?1:.35,onSignIn:()=>{if(!emailOk)return this.setState({emailErr:true});if(!s.pw)return;this.setState({screen:'feed',stack:[],pw:''});this.toast('welcome back.');},
+      onForgot:()=>this.toast(emailOk?'reset link sent to '+s.email:'enter your email first'),
+      createOp:emailOk&&s.pw.length>=8&&s.pw===s.pw2&&s.agree?1:.35,
+      onCreate:()=>{if(!emailOk)return this.setState({emailErr:true});if(s.pw.length<8){return this.toast('password needs 8+ characters');}if(s.pw!==s.pw2||!s.agree)return;this.setState({loginStep:'code'});},
+      loginEmail:s.loginStep==='email',loginCode:s.loginStep==='code',email:s.email,code:s.code,emailErr:s.emailErr,
+      emailBorder:s.emailErr?'#B3261E':'rgba(23,35,29,.1)',sendOp:emailOk?1:.35,verifyOp:s.code.length===6?1:.35,
+      onEmail:e=>this.setState({email:e.target.value,emailErr:false}),
+      onSend:()=>emailOk?this.setState({loginStep:'code'}):this.setState({emailErr:true}),
+      onCode:e=>this.setState({code:e.target.value.replace(/\D/g,'').slice(0,6)}),
+      onVerify:()=>{if(s.code.length===6){this.setState({screen:'feed',stack:[],loginStep:'email',code:'',pw:'',pw2:''});this.toast('you\u2019re in. welcome to musty\u2019s map.');}},
+      onEditEmail:()=>this.setState({loginStep:'email',code:''}),onResend:()=>this.toast('new code sent'),
+      mapRef:this.mapRef,chips,spotCount:vis.length,nearby,noSel:!selL,hasSel:!!selL,sel:sel||{bars:[]},locateTop:selL?186:186,
+      onCloseSel:()=>this.setState({sel:null}),onDetails:()=>this.go('location',{loc:s.sel,day:0,hour:NOW}),
+      onQuick:()=>this.setState({quick:true,qStars:0,qBusy:null}),onRateSel:()=>this.go('rate',{loc:s.sel,r:this.resetR()}),
+      onLocate:()=>{if(this.map)this.map.flyTo([35.3016,-120.6602],15.9,{duration:.6});},onSearch:()=>this.toast('search coming soon'),
+      L,days,bars,busyTitle,busySub,onBack:()=>this.back(),onRateLoc:()=>this.go('rate',{r:this.resetR()}),onShareSpot:()=>this.toast('link to '+loc.name+' copied'),
+      rateName:loc.short,rStars,rCaption:CAP[R.overall],rSubs,rBusyOpts:busyOpts(R.busy,i=>setR({busy:i})),rTagOpts,spotPicks,rText:R.text,
+      onRText:e=>setR({text:e.target.value}),onPhoto:()=>this.toast('opens photo picker'),
+      postOp:R.overall?1:.35,postLabel:R.overall?'post rating':'tap a star to rate',
+      onPost:()=>{if(!R.overall)return;const m={loc:loc.id,score:R.overall,when:'just now',text:R.text||R.tags.join(' · ')||'no notes, just vibes.'};this.setState(st=>({mine:[m,...st.mine.filter(x=>x.loc!==loc.id)],r:this.resetR()}));this.back();this.toast('posted. thanks for the intel.');},
+      quickOpen:s.quick,qName:loc.name,qStars:stars5(s.qStars,n=>this.setState({qStars:n})),qBusyOpts:busyOpts(s.qBusy,i=>this.setState({qBusy:i})),
+      qPostOp:s.qStars||s.qBusy!==null?1:.35,stop:e=>e.stopPropagation(),onQClose:()=>this.setState({quick:false}),
+      onQPost:()=>{if(!s.qStars&&s.qBusy===null)return;this.setState({quick:false});this.toast('logged. you\u2019re a real one.');},
+      onQFull:()=>this.go('rate',{r:{...this.resetR(),overall:s.qStars,busy:s.qBusy}}),
+      me,myCount:mine.length,myAvg:avg,profTabs,myList,
+      onSettings:()=>this.go('settings'),onEdit:()=>this.setState({edit:true,draft:{...s.me}}),onShare:()=>this.setState({share:true,copied:false}),
+      editOpen:s.edit,draft:d,onDName:setD('name'),onDHandle:setD('handle'),onDMajor:setD('major'),onDBio:setD('bio'),
+      onCancelEdit:()=>this.setState({edit:false,draft:null}),onSaveEdit:()=>{this.setState(st=>({me:{...st.draft},edit:false,draft:null}));this.toast('profile updated');},
+      shareOpen:s.share,copyLabel:s.copied?'copied ✓':'copy',onCopy:()=>this.setState({copied:true}),onShareVia:()=>{this.setState({share:false});this.toast('opens iOS share sheet');},onCloseShare:()=>this.setState({share:false}),
+      U,followLabel:s.following?'following':'follow',followBg:s.following?'transparent':G,followColor:s.following?G:OW,followBorder:G,
+      onFollow:()=>this.setState({following:!s.following}),onShareUser:()=>this.toast('profile link copied'),
+      sections,confirmOpen:s.confirm,onCancelDel:()=>this.setState({confirm:false}),
+      onConfirmDel:()=>{this.setState({confirm:false,screen:'login',stack:[],email:'',loginStep:'email'});this.toast('account deleted');},
+      hasToast:!!s.toast,toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

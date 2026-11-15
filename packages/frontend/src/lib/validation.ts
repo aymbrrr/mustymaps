@@ -8,6 +8,8 @@
 
 export const NOTE_MAX_LENGTH = 280;
 
+const CALPOLY_EMAIL = /@calpoly\.edu$/i;
+
 export const validate = {
   /** Trim and truncate a report note to the column limit. */
   note: (input: string): string => input.trim().slice(0, NOTE_MAX_LENGTH),
@@ -24,5 +26,13 @@ export const validate = {
   /** Wait time in minutes, clamped to the range the column accepts. */
   waitMinutes: (value: number): number => Math.round(Math.max(0, Math.min(120, value))),
 
+  /** Normalise an email before submitting or comparing it. */
   email: (input: string): string => input.trim().toLowerCase(),
+
+  /**
+   * Sign-up is gated to Cal Poly students as an anti-spam measure. The auth
+   * gateway enforces this too; checking here lets the field turn red without a
+   * round trip.
+   */
+  isCalPolyEmail: (input: string): boolean => CALPOLY_EMAIL.test(input.trim()),
 };

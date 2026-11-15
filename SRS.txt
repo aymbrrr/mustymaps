@@ -1,0 +1,266 @@
+﻿STUDENT PROJECT TEMPLATE (SRS)
+(INSTRUCTION FOR STUDENTS: THIS DOCUMENT SERVES AS THE FORMAL 'CONTRACT' FOR YOUR TEAM PROJECT. IT MUST BE MAINTAINED IN YOUR GITHUB REPOSITORY.)
+
+
+Musty’s Map
+
+
+SOFTWARE REQUIREMENTS SPECIFICATION
+INSTRUCTOR: LARA NICHOLS-BROWN
+TERM: FALL 2026
+SECTION: 08
+
+
+THE ENGINEERING TEAM:
+1. STUDENT A: [Hailey Morgan] — [Lead Engineer]
+2. STUDENT B: [Sachi Jain ] — [Product Owner]
+3. STUDENT C: [Leila Torres] — [TESTER]
+4. STUDENT D: [May Khin] — [SCRUM MASTER]
+
+
+PROJECT ASSETS:
+* GITHUB:https://github.com/aymbrrr/mustymaps
+* DEPLOYMENT: [LINK TO LIVE SITE]
+
+
+DOCUMENT HISTORY:         
+LAST DATE CHANGED: 
+	WHO:
+	WHAT WAS CHANGED:
+	
+
+	
+
+	
+
+	9/25/2026
+	Leila Torres
+	Added user stories/func/nonfunc requirements
+	9/25/26
+	Hailey Morgan
+	Added product vision
+	
+
+	
+
+	
+
+	
+
+________________
+________________
+
+
+
+
+[Musty’s Map]
+SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
+COURSE: [COURSE NAME/NUMBER]
+DATE: [SUBMISSION DATE]
+________________
+
+
+TABLE OF CONTENTS
+1. INTRODUCTION ...................................................................................... [PAGE #]
+   * 1.1 PROJECT PURPOSE
+   * 1.2 INTENDED AUDIENCE
+   * 1.3 PROJECT SCOPE
+2. USER STOREIES ..................................................................................... [PAGE #]
+   * 2.1 USER FEATURES (THE "SHALL" STATEMENTS)
+   * 2.2 ADMIN FEATURES
+3. FUNCTIONAL REQUIREMENTS....................................................... [PAGE #]
+4. NON-FUNCTIONAL REQUIREMENTS ............................................ [PAGE #]
+   * 4.1 DATA INTEGRITY & SECURITY
+   * 4.2 PERFORMANCE & USABILITY
+5. SYSTEM ARCHITECTURE ................................................................ [PAGE #]
+   * 5.1 REST API ENDPOINTS
+   * 5.2 DATABASE SCHEMA (MYSQL)
+6. USER INTERFACE (UI) ...................................................................... [PAGE #]
+   * 6.1 WIREFRAMES / MOCKUPS
+7. DATA REQUIREMENTS ..................................................................... [PAGE #]
+   * 7.1 LIST OF PERSISTENT DATA
+8. TRACEABILITY MATRIX ................................................................. [PAGE #]
+9. APPENDICES ....................................................................................... [PAGE #]
+________________
+
+
+
+
+________________
+
+
+1. INTRODUCTION
+* PROBLEM STATEMENT: WHAT SPECIFIC PROBLEM ARE YOU SOLVING?
+Cal Poly students often have to walk to dining areas, study spaces, and
+other campus locations without knowing how crowded they are, how long the wait will be, or
+whether useful resources such as leftover food are available.
+* TARGET AUDIENCE: WHO ARE THE STAKEHOLDERS?
+Cal Poly students who want real-time information about campus locations.
+* SCOPE: WHAT IS THE SCOPE OF THIS PROJECT?
+Musty Map will provide a crowdsourced campus map where students can view and
+submit information such as crowd levels, estimated wait times, photos, ratings, and leftover food
+updates. Users will also be able to create profiles, favorite locations, and flag inaccurate or
+inappropriate content.
+
+
+2. USER STORIES and Product Vision
+Product Vision
+Product Vision: For Cal Poly students who need up-to-date information about busy campus
+locations, Musty Map is a crowdsourced campus map application that provides real-time
+information about crowd levels, wait times, leftover food, and other useful campus updates.
+Unlike general map applications, Musty Map focuses specifically on Cal Poly and uses real-time
+reports from students to help users make better decisions about where and when to go.
+USER STORIES FOLLOW THE FORMAT: "AS A [TYPE OF USER], I WANT TO [ACTION] SO THAT [VALUE/BENEFIT]."...
+US-01: AUTHENTICATION
+US-02: STORE WORKOUT_LOG.
+US-03: SEARCH HISTORY 
+ID
+	REQUIREMENT
+	PRIORITY
+	US-01 Main Author: Leila Torres
+	As a Cal Poly student, I want to view the current crowd level and estimated wait time at a campus location so that I can decide whether it is worth going there right now.
+	2
+	US-02 Main Author: Leila Torres
+	As a Cal Poly student, I want to post a real-time update about a campus location so that other students can see current information about crowds, wait times, or availability.
+
+
+	1
+	US-03 Main Author: Leila Torres
+	As a Cal Poly student, I want to favorite locations I visit often so that I can quickly check their current status without searching for them every time.
+	3
+	US-04 (Author: May)
+	As a Cal Poly student, I want to view the current crowd level and estimated wait time at campus locations so that I can decide where to go without wasting time.
+
+
+	1
+
+
+	US-05 (Author: May)
+	As a Cal Poly student, I want to favorite locations that I visit frequently so that I can quickly check their current information.
+
+
+	3
+	US-06 (Author: May)
+	As a Cal Poly student, I want to view ratings, photos, and recent updates for a campus location so that I can decide whether I want to visit it.
+
+
+	3
+	US-07 Author: Hailey Morgan
+	As a Cal Poly student, I want to be notified and view on a map when and where leftover or free food is available on campus. 
+	3
+	US-08 Author: Hailey Morgan
+	As a user, I want to be able to block other users and report unwanted UGC content.
+	1
+	US-09 Author: Hailey Morgan
+	As a user, I want to be able to view my friend’s profiles on the app and be notified when they post. 
+	4
+	
+
+US-10 Author: Sachi Jain
+	As a Cal Poly student, I want to search for campus locations by name or category so that I can quickly find the place I am looking for.
+	3
+	US-11 Author: Sachi Jain
+	As a Cal Poly student, I want to view campus locations on an interactive map so that I can see where they are located relative to me.
+	1
+	US-12 Author: Sachi Jain
+	As a Cal Poly student, I want to filter campus locations based on things like crowd level or type of location so that I can find an option that fits what I need.
+	4
+	
+
+3. FUNCTIONAL REQUIREMENTS
+THE SYSTEM SHALL...
+ID
+	REQUIREMENT
+	PRIORITY
+	FR-01
+Main Author: Leila Torres
+	 The system shall allow users to view crowd levels and estimated wait times for campus
+locations.
+	2
+	FR-02
+Author: Leila Torres
+	The system shall allow users to post real-time updates about campus locations.
+	1
+	FR-03
+Author: Leila Torres
+	The system shall allow users to favorite campus locations for quick access.
+	3
+	FR-04
+Author: Leila Torres
+	The system shall allow users to view reports about leftover food at campus locations.
+	4
+	
+
+
+
+4. NON-FUNCTIONAL REQUIREMENT
+
+
+ID
+	REQUIREMENT
+	PRIORITY
+	NFR-01
+Main Author: Leila Torres
+	 Usability: The application should be easy for students to navigate and understand
+without training.
+	2
+	NFR-02
+Main Author: Leila Torres
+	Performance: Location and crowd information should load within a reasonable
+amount of time under normal use.
+	1
+	NFR-03
+Main Author: Leila Torres
+	Security: User account information and credentials should be stored and handled
+securely.
+	3
+	NFR-04
+Main Author: Leila Torres
+	Reliability: User-submitted updates should be stored consistently and remain
+available until removed or updated.
+	4
+	
+
+
+
+* INTEGRITY: HANDLING ERRORS AND BAD DATA
+* SECURITY: IMPLEMENT BCRYPT FOR PASSWORD HASHING AND ENVIRONMENT VARIABLES FOR DB CREDENTIALS.
+* USABILITY: 
+5. SYSTEM ARCHITECTURE
+* REST ENDPOINTS: (LIST METHOD | URL | DESCRIPTION)
+* LIST YOUR PLANNED ENDPOINTS BASED ON YOUR REST SLIDE:
+   * GET /API/RESOURCES — FETCHES COLLECTION.
+   * POST /API/RESOURCES — CREATES A NEW RESOURCE.
+* UML: (ATTACH A DIAGRAM) 
+
+
+
+
+5. USER INTERFACE (UI) 
+   1. 5.1 WIREFRAMES / MOCKUPS
+6. DATA REQUIREMENTS
+
+
+7. TRACEABILITY MATRIX 
+
+
+ID
+	REQUIREMENT
+	LINE OF CODE
+	US-01
+	The system will authenticate users via username and password.
+	152
+	US-02
+	Allow users to store workout information
+	256
+	US-03
+	Allow users to search their workout history
+	46
+	US-04
+	Allow users to add new workout types.
+	45
+	
+
+8. AI USAGE & DISCLOSURE (MANDATORY)
+* MODEL(S) USED: [E.G., CLAUDE 3.5, GPT-4O]
+* PROMPTS USED DURING CODING:
