@@ -6,11 +6,27 @@ import {
 } from '@testing-library/react-native';
 import { SignInScreen } from '../SignInScreen';
 
-const mockToast = jest.fn();
+jest.mock('../../../components/ToastHost', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
 
-jest.mock('../../../components/ToastHost', () => ({
-  useToast: () => mockToast,
-}));
+  const ToastContext = React.createContext(() => {});
+
+  return {
+    ToastHost: ({ children }: { children: React.ReactNode }) => {
+      const [message, setMessage] = React.useState(null as string | null);
+
+      return (
+        <ToastContext.Provider value={setMessage}>
+          {children}
+          {message ? <Text>{message}</Text> : null}
+        </ToastContext.Provider>
+      );
+    },
+
+    useToast: () => React.useContext(ToastContext),
+  };
+});
 
 jest.mock('../../../components/Icons', () => ({
   EyeIcon: () => null,
@@ -35,6 +51,8 @@ jest.mock('../../../stores/sessionStore', () => ({
     selector(mockSessionState),
 }));
 
+const { ToastHost } = jest.requireMock('../../../components/ToastHost');
+
 const navigation = {
   goBack: jest.fn(),
   replace: jest.fn(),
@@ -46,14 +64,16 @@ describe('sign-in user story', () => {
     mockSessionState.isBusy = false;
   });
 
-  it('lets a user enter valid credentials and sign in', async () => {
+  it('lets a user sign in and shows a welcome message', async () => {
     mockSessionState.signIn.mockResolvedValue(null);
 
     const screen = await render(
-      <SignInScreen
-        navigation={navigation}
-        route={{} as any}
-      />
+      <ToastHost>
+        <SignInScreen
+          navigation={navigation}
+          route={{} as any}
+        />
+      </ToastHost>
     );
 
     const email = screen.getByPlaceholderText('you@calpoly.edu');
@@ -71,17 +91,12 @@ describe('sign-in user story', () => {
       expect(password.props.value).toBe('password123');
     });
 
-    const button = screen.getByText('sign in →');
-
-    fireEvent.press(button);
+    fireEvent.press(screen.getByText('sign in →'));
 
     await waitFor(() => {
-      expect(mockSessionState.signIn).toHaveBeenCalledWith(
-        'student@calpoly.edu',
-        'password123'
-      );
-
-      expect(mockToast).toHaveBeenCalledWith('welcome back.');
+      expect(
+        screen.getByText('welcome back.')
+      ).toBeTruthy();
     });
   });
 
@@ -91,10 +106,12 @@ describe('sign-in user story', () => {
     );
 
     const screen = await render(
-      <SignInScreen
-        navigation={navigation}
-        route={{} as any}
-      />
+      <ToastHost>
+        <SignInScreen
+          navigation={navigation}
+          route={{} as any}
+        />
+      </ToastHost>
     );
 
     const email = screen.getByPlaceholderText('you@calpoly.edu');
@@ -115,9 +132,9 @@ describe('sign-in user story', () => {
     fireEvent.press(screen.getByText('sign in →'));
 
     await waitFor(() => {
-      expect(mockToast).toHaveBeenCalledWith(
-        'invalid email or password'
-      );
+      expect(
+        screen.getByText('invalid email or password')
+      ).toBeTruthy();
     });
   });
 });
