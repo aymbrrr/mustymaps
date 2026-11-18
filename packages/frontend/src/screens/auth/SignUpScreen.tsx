@@ -14,7 +14,7 @@ import { BackChevron, INVALID_EMAIL_MESSAGE, isCalPolyEmail } from './authShared
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
-const MIN_PASSWORD_LENGTH = 8;
+
 const CODE_LENGTH = 6;
 
 export function SignUpScreen({ navigation }: Props) {
@@ -39,7 +39,7 @@ export function SignUpScreen({ navigation }: Props) {
   const emailOk = isCalPolyEmail(email);
   const passwordsMatch = confirm.length > 0 && confirm !== password;
   const canCreate =
-    emailOk && password.length >= MIN_PASSWORD_LENGTH && password === confirm && agreed;
+  emailOk && validate.isValidPassword(password) && password === confirm && agreed;
 
   const onCreate = async () => {
     if (!emailOk) {

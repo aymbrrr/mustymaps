@@ -114,3 +114,9 @@ The backend access-control rules are defined in `supabase/migrations/001_initial
 The `profiles` table is also protected with Row Level Security. Its policy checks that `auth.uid()` matches the profile's `user_id`, so users can only access or modify their own profile data.
 
 Together, Supabase Auth, persisted frontend sessions, authenticated Supabase requests, and Row Level Security provide the access-control system for Musty Maps.
+
+## TE7: Automated Testing
+
+Automated testing for Musty Maps includes unit tests, system tests, UI tests, and a documented TDD workflow.
+
+See [TESTING.md](./TESTING.md) for the testing setup, test descriptions, TDD evidence, and instructions for running the test suite.

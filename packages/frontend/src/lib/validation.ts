@@ -28,6 +28,7 @@ export const validate = {
 
   /** Normalise an email before submitting or comparing it. */
   email: (input: string): string => input.trim().toLowerCase(),
+  isValidPassword: (input: string): boolean => input.length >= 8,
 
   /**
    * Sign-up is gated to Cal Poly students as an anti-spam measure. The auth
